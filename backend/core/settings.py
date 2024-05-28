@@ -92,7 +92,7 @@ DATABASES = {
         'NAME': 'database_games',
         'USER': 'postgres',
         'PASSWORD': 'rafao_noob',
-        'HOST': '10.109.25.122',  # IP da máquina onde o PostgreSQL está instalado
+        'HOST': 'localhost',  # IP da máquina onde o PostgreSQL está instalado
         'PORT': '5432',
     }
 }

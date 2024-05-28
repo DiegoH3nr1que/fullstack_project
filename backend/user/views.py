@@ -15,28 +15,28 @@ class AuthLogin(View):
       user = authenticate(username ='user', password='a1b2c3')
       if user:
         token = generate_token(user)
-        response = redirect('Weather View')
+        response = redirect('User Login')
         response.set_cookie('jwt', token)
         
         return response
 
-      return redirect('Weather View')
+      return redirect('User Login')
 
 
   def get(self, request):
       user = authenticate(username ='user', password='a1b2c3')
       if user:
         token = generate_token(user)
-        response = redirect('Weather View')
+        response = redirect('User Loginw')
         response.set_cookie('jwt', token)
         
         return response
 
-      return redirect('Weather View')
+      return redirect('User Login')
   
 class AuthLogout(View):
     def get(sekf, request):
-        response = redirect('Weather View')
+        response = redirect('User Login')
         response.delete_cookie('jwt')
         return response
 
@@ -64,29 +64,20 @@ class UserLogin(View):
         return render(request, "login_user.html", {"form": userLoginForm})
     
     def post(self, request):
-        repository = UserRepository(collectionName='users')
-        try:
-            users = list(repository.getAll())
-            serializer = UserSerializer(data=users, many=True)
-            if serializer.is_valid():
-                username_exists = False
-                for user_data in serializer.data:
-                    if user_data['username'] == serializer:  # Substitua 'desired_username' pelo nome de usuário que você está verificando
-                        username_exists = True
-                        break
+        userLoginForm = UserLoginForm(request.POST)
+        if userLoginForm.is_valid():
+            username = userLoginForm.cleaned_data['username']
+            password = userLoginForm.cleaned_data['password']
 
-                if username_exists:
-                    # Redirecionar para a view de visualização do clima
-                    return redirect('Weather View')
-                else:
-                    # Redirecionar para a página de login
-                    return redirect('User Login')
+            repository = UserRepository()
+            user = repository.get_user_by_username(username)
+
+            if user and user.password == password:  # Supondo que a senha esteja em texto simples, mas normalmente você deve usar hashing
+                return "Login funcionou"
             else:
-                objectReturn = {"error": serializer.errors}
-        except UserException as e:
-            objectReturn = {"error": e.message}
+                return redirect('User Login')
 
-        return redirect('Weather View')
+        return render(request, "login_user.html", {"form": userLoginForm, "error": "Invalid username or password"})
     
 class UserCreate(View):
     def get(self, request):
@@ -100,7 +91,7 @@ class UserCreate(View):
             serializer = UserSerializer(data=userForm.data)
             if serializer.is_valid():
                 repository = UserRepository()
-                repository.insert(serializer.data)
+                repository.create_user(serializer.data)
             else:
                 print(serializer.errors)
         else:
@@ -141,4 +132,4 @@ class UserEdit(View):
         else:
             print(userForm.errors)
 
-        return redirect('Weather View')
+        return redirect('User Login')

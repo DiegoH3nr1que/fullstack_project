@@ -7,11 +7,12 @@ class UserRepository:
     def get_all_users(self):
         return CustomUser.objects.all()
 
-    def get_user_by_id(self, user_id):
+    def get_user_by_username(self, username):
         try:
-            return CustomUser.objects.get(pk=user_id)
+            return CustomUser.objects.get(username=username)
         except ObjectDoesNotExist:
             return None
+        
 
     def create_user(self, user_data):
         user = CustomUser(**user_data)
