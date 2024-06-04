@@ -1,6 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+  
+}
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -24,10 +29,25 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+    font-family: 'Press Start 2P', cursive;
+}
+
+.font-press-start {
+  font-family: 'Press Start 2P', cursive;
+}
+
+.placeholder-sm::placeholder {
+  font-size: 0.75rem;
+}
+
+.password-icon {
+  width: 35px;
+  height: 30px;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  
 }
