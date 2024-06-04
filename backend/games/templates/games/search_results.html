@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Busca de Jogos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: background-color 0.3s;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .game-card {
+            width: 250px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .game-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .game-card h2 {
+            font-size: 18px;
+            margin: 10px 0;
+            color: #333;
+        }
+
+        .review-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: block;
+            margin: 10px auto;
+        }
+
+        .review-button:hover {
+            background-color: #218838;
+        }
+
+        #review-form {
+            display: none;
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: white;
+        }
+
+        .rating {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .rating input[type="radio"] {
+            display: none;
+        }
+
+        .rating label {
+            font-size: 24px;
+            color: #ccc;
+            cursor: pointer;
+        }
+
+        .rating input[type="radio"]:checked ~ label,
+        .rating label:hover ~ label {
+            color: gold;
+        }
+
+        .reviews {
+            margin-top: 10px;
+        }
+
+        .review {
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Busca de Jogos</h1>
+    <form method="GET" action="{% url 'search_api' %}">
+        <input type="text" name="q" placeholder="Buscar jogo..." value="{{ request.GET.q }}">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div id="results-container" class="game-container">
+        {% for game in games %}
+            <div class="game-card">
+                <h2>{{ game.name }}</h2>
+                <img src="{{ game.background_image }}" alt="{{ game.name }}">
+                <button class="review-button">
+                    <a href="{% url 'game_detail' game.slug %}">
+                        <i class="fas fa-star"></i> Escrever Review
+                    </a>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
