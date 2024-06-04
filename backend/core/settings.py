@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    'rest_framework_simplejwt',
     "games",
     "user",
     "corsheaders",
@@ -56,6 +57,8 @@ MIDDLEWARE = [
 
 
 CORS_ORIGIN_ALLOW_ALL = True 
+
+AUTH_USER_MODEL = 'user.CustomUser'
 
 ROOT_URLCONF = "core.urls"
 
@@ -83,8 +86,12 @@ WSGI_APPLICATION = "core.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'database_games',
+        'USER': 'postgres',
+        'PASSWORD': 'rafao_noob',
+        'HOST': 'localhost',  # IP da máquina onde o PostgreSQL está instalado
+        'PORT': '5432',
     }
 }
 
