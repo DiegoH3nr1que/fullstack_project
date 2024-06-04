@@ -87,10 +87,10 @@ WSGI_APPLICATION = "core.wsgi.application"
 DATABASES = {
     "default": {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'database_games',
-        'USER': 'postgres',
-        'PASSWORD': 'rafao_noob',
-        'HOST': 'localhost',  # IP da máquina onde o PostgreSQL está instalado
+        'NAME': 'save_point',
+        'USER': 'admin123',
+        'PASSWORD': 'postgres',
+        'HOST': 'host.docker.internal',
         'PORT': '5432',
     }
 }
