@@ -6,7 +6,8 @@ import Head from 'next/head';
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
-      <Head>
+      <Head><title>{'Save point'}</title>
+        <link rel="shortcut icon" type="image/x-icon" href="images/favicon.ico" />
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
       </Head>
       <Component {...pageProps} />
