@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-s4ka26gb2wzs)o+5eh*0*v6&650nzs_yq%^!77u87g)do(t_6p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -65,7 +65,7 @@ ROOT_URLCONF = "core.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates/games'],
+        "DIRS": [BASE_DIR / 'templates/games', BASE_DIR / 'templates/user'],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -85,13 +85,9 @@ WSGI_APPLICATION = "core.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'save_point',
-        'USER': 'admin123',
-        'PASSWORD': 'postgres',
-        'HOST': 'host.docker.internal',
-        'PORT': '5432',
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / "db.sqlite3",
     }
 }
 

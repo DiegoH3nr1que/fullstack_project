@@ -1,4 +1,4 @@
-{% extends "user.html" %} 
+{% extends "user/user.html" %} 
 {% block content %}
 
 <style>
@@ -34,50 +34,31 @@
     background-color: #0056b3; /* Cor de fundo do botão primário ao passar o mouse */
     border-color: #0056b3; /* Cor da borda do botão primário ao passar o mouse */
   }
-
-  .card-footer {
-    color: #6c757d; /* Cor do texto do rodapé do cartão */
-    font-size: 0.9rem; /* Tamanho da fonte do rodapé do cartão */
-    margin-top: 1.5rem; /* Espaçamento superior do rodapé do cartão */
-  }
-
-  .card-footer a {
-    color: #007bff; /* Cor do link no rodapé do cartão */
-    text-decoration: none; /* Remover sublinhado do link no rodapé do cartão */
-    transition: all 0.3s ease; /* Transição suave */
-  }
-
-  .card-footer a:hover {
-    text-decoration: underline; /* Adicionar sublinhado ao passar o mouse sobre o link no rodapé do cartão */
-  }
 </style>
 
-<h1 class="text-center mt-5">Weather application</h1>
+<h1 class="text-center mt-5">Create User</h1>
 
 <div class="container mt-4">
   <div class="row justify-content-center">
     <div class="col-md-6">
       <div class="card">
         <div class="card-body">
-          <h2 class="card-title text-center mb-4">Login User</h2>
-          <form action="{% url 'User Login' %}" method="post" enctype="multipart/form-data">
+          <h2 class="card-title text-center mb-4">Create User</h2>
+          <form action="{% url 'User Create' %}" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="mb-4 text-center">
+            <div class="mb-4">
               {% for field in form %}
-                <div class="mb-3">
+                <div class="mb-3 text-center">
                   <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
                   {{ field }}
                 </div>
               {% endfor %}
             </div>
             <div class="text-center"> <!-- Centraliza o botão -->
-              <button type="submit" class="btn btn-primary">Login</button>
+              <button type="submit" class="btn btn-primary">Create</button>
             </div>
           </form>
         </div>
-        <div class="card-footer text-center">
-          Don't have an account? <a href="{% url 'User Create' %}" class="text-decoration-none">Create one</a>
-        </div> <!-- Adiciona o link para criar uma nova conta -->
       </div>
     </div>
   </div>
