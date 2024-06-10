@@ -18,7 +18,7 @@ class Game(models.Model):
     platforms = models.JSONField(null=True, blank=True)
     genres = models.JSONField(null=True, blank=True)
 
-    # Outras informações
+    # Outras informações auxiliares
     developers = models.JSONField(null=True, blank=True)
     publishers = models.JSONField(null=True, blank=True)
     esrb_rating = models.CharField(max_length=50, null=True, blank=True)
