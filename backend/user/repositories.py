@@ -13,6 +13,12 @@ class UserRepository:
         except ObjectDoesNotExist:
             return None
         
+    def get_user_by_id(self, id):
+        try:
+            return CustomUser.objects.get(id=id)
+        except ObjectDoesNotExist:
+            return None
+        
 
     def create_user(self, user_data):
         user = CustomUser(**user_data)

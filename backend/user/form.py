@@ -17,6 +17,7 @@ class UserForm(forms.Form):
     password = forms.CharField(max_length=255, required=True, widget=forms.PasswordInput) 
 
 
+
 class UserLoginForm(forms.Form):
     username = forms.CharField(max_length=255, required=True)
     password = forms.CharField(max_length=255, required=True, widget=forms.PasswordInput) 
