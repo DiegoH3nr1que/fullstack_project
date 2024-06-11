@@ -1,47 +1,64 @@
+{% extends 'base.html' %} 
+{% block content %}
 {% load static %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ game.name }}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="{% static 'js/script.js' %}"></script>
-    <style>
-        /* Estilos CSS (mesmos do exemplo anterior) */
-        /* ... */
-    </style>
-</head>
-<body>
-    <h1>{{ game.name }}</h1>
-    <img src="{{ game.background_image }}" alt="{{ game.name }}">
 
-    <div id="review-form">
-        <h2>Escrever Review</h2>
-        <form method="POST" action="{% url 'create_review' game.slug %}">
-            {% csrf_token %}
+<h1>{{ game.name }}</h1>
+<img src="{{ game.background_image }}" alt="{{ game.name }}">
+
+<p><strong>Descrição:</strong> {{ game.description }}</p>
+<p><strong>Lançamento:</strong> {{ game.released }}</p>
+<p><strong>Classificação:</strong> {{ game.rating }} ({{ game.ratings_count }} votos)</p>
+<p><strong>Website:</strong> <a href="{{ game.website }}" target="_blank">{{ game.website }}</a></p>
+<p><strong>Desenvolvedores:</strong> 
+    {% for developer in game.developers %}
+        {{ developer }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+<p><strong>Publishers:</strong> 
+    {% for publisher in game.publishers %}
+        {{ publisher }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+<p><strong>Plataformas:</strong> 
+    {% for plataforma in game.platforms %}
+        {{ plataforma }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+<p><strong>Gêneros:</strong> 
+    {% for genero in game.genres %}
+        {{ genero }}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+</p>
+<p><strong>ESRB Rating:</strong> {{ game.esrb_rating }}</p>
+<p><strong>Tempo médio de jogo:</strong> {{ game.playtime }} minutos</p>
+
+<h2>Reviews</h2>
+
+<div class="reviews">
+    {% for review in game.reviews.all %}
+        <div class="review">
             <div class="rating">
                 {% for i in '12345' %}
-                    <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required>
-                    <label for="star{{ i }}"><i class="fas fa-star"></i></label>
+                    <i class="fas fa-star {% if review.rating >= forloop.counter %}checked{% endif %}"></i>
                 {% endfor %}
             </div>
-            <textarea name="text" placeholder="Escreva seu comentário (opcional)"></textarea>
-            <button type="submit">Enviar</button>
-        </form>
-    </div>
+            <p>{{ review.text }}</p>
+        </div>
+    {% endfor %}
+</div>
 
-    <div class="reviews">
-        <h2>Reviews</h2>
-        {% for review in game.reviews.all %}
-            <div class="review">
-                <div class="rating">
-                    {% for i in '12345' %}
-                        <i class="fas fa-star {% if review.rating >= forloop.counter %}checked{% endif %}"></i>
-                    {% endfor %}
-                </div>
-                <p>{{ review.text }}</p>
-            </div>
+<h3>Escreva sua Review</h3>
+<form method="POST" action="{% url 'create_review' game.slug %}" id="review-form">
+    {% csrf_token %}
+    <input type="hidden" name="game_slug" value="{{ game.slug }}">
+    <div class="rating">
+        {% for i in '12345' %}
+            <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required>
+            <label for="star{{ i }}"><i class="fas fa-star"></i></label>
         {% endfor %}
     </div>
-</body>
-</html>
+    <textarea name="text" placeholder="Escreva seu comentário (opcional)"></textarea>
+    <button type="submit">Enviar</button>
+</form>
+
+{% endblock content %}
