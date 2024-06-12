@@ -142,59 +142,67 @@
             border-top: 1px solid #eee;
             padding-top: 10px;
         }
+        .game-section {
+            margin-bottom: 40px;
+        }
+        .game-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
-    <h1>Busca de Jogos</h1>
 
+    <h1>Busca de Jogos</h1>
     <form method="GET" action="{% url 'search_api' %}">
         <input type="text" name="q" placeholder="Buscar jogo..." value="{{ request.GET.q }}">
         <button type="submit">Buscar</button>
     </form>
+    
+    <div id="results-container">
 
-    <div id="results-container" class="game-container">
-        {% for game in games %}
-            <div class="game-card" data-game-slug="{{ game.slug }}">
-                <h2>{{ game.name }}</h2>
-                <img src="{{ game.background_image }}" alt="{{ game.name }}">
-
-                <div class="info">
-                    <p><strong>Lançamento:</strong> {{ game.released }}</p>
-                    <p><strong>Classificação:</strong> {{ game.rating }} ({{ game.ratings_count }} votos)</p>
-                    <p><strong>Gêneros:</strong> {% for genero in game.genres %}{{ genero }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-                    <p><strong>Plataformas:</strong> {% for plataforma in game.platforms %}{{ plataforma }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-                </div>
-
-                <button class="review-button">Escrever Review</button>
-                <div class="review-form" style="display:none;">
-                    <h3>Escreva sua Review</h3>
-                        {% csrf_token %}
-                        <input type="hidden" name="game_slug" value="{{ game.slug }}">
-                        <div class="rating">
-                            {% for i in '12345' %}
-                                <input type="radio" id="star{{ i }}-{{ game.slug }}" name="rating" value="{{ i }}" required>
-                                <label for="star{{ i }}-{{ game.slug }}"><i class="fas fa-star"></i></label>
-                            {% endfor %}
-                        </div>
-                        <textarea name="text" placeholder="Escreva seu comentário (opcional)"></textarea>
-                        <button type="submit">Enviar</button>
-                    </form>
-                </div>
-
-                <div class="reviews">
-                    {% for review in game.reviews.all %}
-                        <div class="review">
-                            <div class="rating">
-                                {% for i in '12345' %}
-                                    <i class="fas fa-star {% if review.rating >= forloop.counter %}checked{% endif %}"></i>
-                                {% endfor %}
-                            </div>
-                            <p>{{ review.text }}</p>
-                        </div>
-                    {% endfor %}
-                </div>
+        {% if popular_games %}
+        <div class="game-section">
+            <h2>Jogos Mais Famosos</h2>
+            <div class="game-container">
+                {% for game in popular_games %}
+                    {% include 'games/game_card.html' with game=game %} 
+                {% endfor %}
             </div>
-        {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if recent_releases %}
+        <div class="game-section">
+            <h2>Lançamentos Recentes</h2>
+            <div class="game-container">
+                {% for game in recent_releases %}
+                    {% include 'games/game_card.html' with game=game %} 
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if top_rated_games %}
+        <div class="game-section">
+            <h2>Melhores Jogos</h2>
+            <div class="game-container">
+                {% for game in top_rated_games %}
+                    {% include 'games/game_card.html' with game=game %} 
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if results %} 
+            <h2>Resultados da Busca</h2>
+            <div class="game-container">
+                {% for game in results %}
+                    {% include 'games/game_card.html' with game=game %} 
+                {% endfor %}
+            </div>
+        {% endif %}
     </div>
 </body>
 </html>

@@ -1,0 +1,46 @@
+<div class="game-card" data-game-slug="{{ game.slug }}">
+    <h2>{{ game.name }}</h2>
+    <img src="{{ game.background_image }}" alt="{{ game.name }}">
+    <div class="info">
+        <p><strong>Lançamento:</strong> {{ game.released }}</p>
+        <p><strong>Classificação:</strong> {{ game.rating }} ({{ game.ratings_count }} votos)</p>
+        <p><strong>Gêneros:</strong> 
+            {% for genre in game.genres %}
+                {{ genre }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        <p><strong>Plataformas:</strong> 
+            {% for platform in game.platforms %}
+                {{ platform }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p> 
+    </div>
+    
+    <form class="review-form" method="post" action="{% url 'create_review' game.slug %}">  
+        <h3>Escreva sua Review</h3>
+        {% csrf_token %}
+        <div class="rating">
+            {% for i in '12345' %}
+                <input type="radio" id="star{{ i }}-{{ game.slug }}" name="rating" value="{{ i }}" required>
+                <label for="star{{ i }}-{{ game.slug }}"><i class="fas fa-star"></i></label>
+            {% endfor %}
+        </div>
+        <textarea name="text" placeholder="Escreva seu comentário (opcional)"></textarea>
+        <button type="submit">Enviar</button>
+    </form>
+
+
+    <div class="reviews">
+        {% for review in game.reviews.all %}
+            <div class="review">
+                <div class="rating">
+                    {% for i in '12345' %}
+                        <i class="fas fa-star {% if review.rating >= forloop.counter %}checked{% endif %}"></i>
+                    {% endfor %}
+                </div>
+                <p>{{ review.text }}</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <button class="review-button

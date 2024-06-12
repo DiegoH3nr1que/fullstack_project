@@ -1,42 +1,53 @@
 import requests
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render
 from django.http import JsonResponse
+from rest_framework import viewsets, permissions
 from .models import Game, Review
+from .serializers import Game
+from django.utils.text import slugify
+
+class GameViewSet(viewsets.ModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class = Game
+    permission_classes = [permissions.AllowAny]  # Adjust permissions as needed
+
 
 def fetch_games(request):
-    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Substitua pela sua chave de API RAWG
-    url = f'https://api.rawg.io/api/games?key={api_key}'
+    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Substitua pela sua chave de API
+    endpoints = {
+        'popular_games': f'https://api.rawg.io/api/games?key={api_key}&ordering=-added',
+        'recent_releases': f'https://api.rawg.io/api/games?key={api_key}&dates=2023-06-12,2024-06-12&ordering=-released',
+        'top_rated_games': f'https://api.rawg.io/api/games?key={api_key}&ordering=-rating'
+    }
 
     try:
-        response = requests.get(url)
-        response.raise_for_status() 
-        data = response.json()
+        responses = {category: requests.get(url) for category, url in endpoints.items()}
+        for response in responses.values():
+            response.raise_for_status()
 
-        for game_data in data['results']:
-            game, created = Game.objects.get_or_create(slug=game_data['slug'])
+        game_data = {}
+        for category, response in responses.items():
+            data = response.json()
+            for game_info in data['results']:
+                game, created = Game.objects.get_or_create(name=game_info['name'], defaults={
+                    'slug': slugify(game_info['name']),
+                    'background_image': game_info.get('background_image'),
+                    'released': game_info.get('released'),
+                    'rating': game_info.get('rating'),
+                    'ratings_count': game_info.get('ratings_count', 0),
+                    'genres': [genre['name'] for genre in game_info.get('genres', [])],
+                    'platforms': [platform['platform']['name'] for platform in game_info.get('platforms', [])],
+                    'category': category  # Adiciona a categoria
+                })
 
-            game.name = game_data['name']
-            game.released = game_data.get('released')
-            game.rating = game_data.get('rating')
-            game.ratings_count = game_data.get('ratings_count')
-            game.background_image = game_data.get('background_image')
-            game.description = game_data.get('description')
-            game.website = game_data.get('website')
-            game.platforms = [p['platform']['name'] for p in game_data.get('platforms', [])]
-            game.genres = [g['name'] for g in game_data.get('genres', [])]
-            game.developers = [d['name'] for d in game_data.get('developers', [])]
-            game.publishers = [p['name'] for p in game_data.get('publishers', [])]
-            game.esrb_rating = game_data.get('esrb_rating', {}).get('name')
-            game.playtime = game_data.get('playtime')
-            game.suggestions_count = game_data.get('suggestions_count')
+                # Adiciona o jogo à lista da categoria correspondente
+                game_data.setdefault(category, []).append(game)
 
-            game.save()
+        return render(request, 'games/search_results.html', game_data)
 
     except requests.exceptions.RequestException as e:
-        print(f"Erro na requisição à API: {e}")
-        return render(request, 'games/error.html', {'error_message': 'Erro ao buscar jogos da API'})
-
-    return render(request, 'games/search_results.html', {'games': Game.objects.all()})
+        print(f"Erro ao buscar dados da API: {e}")
+        return JsonResponse({'error': 'Erro ao buscar jogos da API'}, status=500)
 
 
 def search_api(request):
@@ -53,36 +64,26 @@ def search_api(request):
             {
                 'name': game['name'],
                 'slug': game['slug'],
-                'background_image': game['background_image'],
-                'released': game.get('released'),
-                'rating': game.get('rating'),
-                'ratings_count': game.get('ratings_count'),
-                'genres': [g['name'] for g in game.get('genres', [])],
-                'platforms': [p['platform']['name'] for p in game.get('platforms', [])],
+                # ... (other fields you want to return)
             }
             for game in data['results']
         ]
-        return render(request, 'games/search_results.html', {'games': formatted_results})
+
+        return JsonResponse({'results': formatted_results})
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição à API: {e}")
-        return render(request, 'games/error.html', {'error_message': 'Erro ao buscar jogos da API'})
-
+        return JsonResponse({'error': 'Erro ao buscar jogos da API'}, status=500)
 
 def game_detail(request, game_slug):
-    game = get_object_or_404(Game, slug=game_slug)
-    return render(request, 'games/game_detail.html', {'game': game})
+    # ... (Fetch game details from RAWG API)
+    # Assuming you have fetched game_details as a dictionary
+    return JsonResponse(game_details)
+
 
 
 def create_review(request, game_slug):
     if request.method == 'POST':
-        game = get_object_or_404(Game, slug=game_slug)
-        rating = int(request.POST.get('rating'))
-        text = request.POST.get('text')
-
-        review = Review(game=game, rating=rating, text=text)
-        review.save()
-
-        return JsonResponse({
-            'rating': review.rating,
-            'text': review.text,
-        })
+        # ... (logic to save review to database)
+        return JsonResponse({'message': 'Review created successfully'})
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=400)  # 400 Bad Request
