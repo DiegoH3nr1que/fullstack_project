@@ -13,6 +13,7 @@ class CustomUserManager(BaseUserManager):
         email = self.normalize_email(email)
         user = self.model(username=username, email=email, **extra_fields)
         user.password = make_password(password)
+        print('Pass:' + user.password)
         user.save(using=self._db)
         return user
 
@@ -30,6 +31,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
+    password = models.CharField(max_length=128)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
@@ -45,4 +47,4 @@ class CustomUser(AbstractUser):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return self.username
+        return self.username + ' - ' + self.password

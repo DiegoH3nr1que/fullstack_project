@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
-from django.contrib.auth import authenticate, login, logout
+from .authenticate import authenticate_user
 
 from user.form import UserForm, UserLoginForm
 from .serializer import UserSerializer
@@ -30,10 +30,10 @@ class UserLogin(View):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate_user(username=username, password=password)
         print(user)
         if user is not None:
-            return redirect(login, user, "fetch_games")
+            return redirect( "fetch_games")
         else:
              return HttpResponse("Usuário ou senha inválidos")
 

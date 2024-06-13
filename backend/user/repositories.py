@@ -21,6 +21,7 @@ class UserRepository:
         
 
     def create_user(self, user_data):
+        print(user_data)
         user = CustomUser(**user_data)
         user.save()
         return user
