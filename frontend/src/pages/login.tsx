@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -20,11 +21,11 @@ const LoginPage: React.FC = () => {
             alt="Gemini Logo"
             className="w-20 h-20"
           />
-          <h1 className="font-medium text-white text-center font-press-start mr-9 text-sm">Save point</h1>
+          <h1 className="font-medium text-white text-center font-press-start mr-9 text-sm">Save Point</h1>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-xs font- text-white">Email</label>
+            <label htmlFor="email" className="block text-xs font-medium text-white">Email</label>
             <input
               type="email"
               id="email"
@@ -39,7 +40,7 @@ const LoginPage: React.FC = () => {
             <label htmlFor="password" className="block text-xs font-medium text-white">Password</label>
             <div className="relative">
               <input
-                type={showPassword? 'text' : 'password'}
+                type={showPassword ? 'text' : 'password'}
                 id="password"
                 placeholder="Insira sua senha"
                 value={password}
@@ -53,7 +54,7 @@ const LoginPage: React.FC = () => {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute inset-y-0 right-0 pr-4 flex items-center text-xs text-blue-500 hover:text-blue-700 focus:outline-none"
                 >
-                  {showPassword? (
+                  {showPassword ? (
                     <img src="/images/bauAberto.png" alt="Show password" className="password-icon" />
                   ) : (
                     <img src="/images/bauFechado.png" alt="Hide password" className="password-icon" />
@@ -68,9 +69,9 @@ const LoginPage: React.FC = () => {
         </form>
         <p className="text-xs text-white text-center mt-4">
           Don't have an account?{' '}
-          <a href="/signup" className="text-blue-500 hover:text-blue-400">
-            Sign up
-          </a>
+          <Link href="/signup" passHref>
+            <span className="text-blue-500 hover:text-blue-400 cursor-pointer">Sign up</span>
+          </Link>
         </p>
       </div>
     </div>
