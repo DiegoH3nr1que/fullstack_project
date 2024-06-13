@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
             alt="Gemini Logo"
             className="w-20 h-20"
           />
-          <h1 className="font-medium text-white text-center font-press-start mr-9 text-sm">Save point</h1>
+          <h1 className="font-medium text-white text-center font-press-start mr-9 text-sm">Save Point</h1>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
