@@ -112,33 +112,50 @@ const Home = () => {
 
       <main className="bg-gray-900 text-white min-h-screen">
         <header className="bg-gray-800 p-4">
-          <div className="container mx-auto flex justify-between items-center">
-            <img
-              src="/images/Gemini_Generated_Image_sm9kpasm9kpasm9k-removebg-preview.png"
-              alt="Gemini Logo"
-              className="w-20 h-20"
-            />
-            <div className="flex-1 max-w-md mx-4 mt-6 relative">
-              <input
-                type="search"
-                placeholder="Search games..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 mb-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
-                style={{ marginBottom: '8px' }}
+          <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center md:items-start">
+              <img
+                src="/images/Gemini_Generated_Image_sm9kpasm9kpasm9k-removebg-preview.png"
+                alt="Gemini Logo"
+                className="w-20 h-20"
               />
-              {searchInput.length > 0 && (
-                <button
-                  className="absolute top-0 right-2 bg-transparent text-gray-700 font-bold py-2 px-4 rounded-md"
-                  type="button"
-                  onClick={() => setSearchInput('')}
-                  style={{ marginRight: '8px' }}
-                >
-                  <img src="/images/icons8-monóculo-50.png" alt="Search" className="h-6 w-6" />
-                </button>
-              )}
+              <div className="md:hidden ml-4">
+                {isLoggedIn ? (
+                  <Link href="/user" className="text-white">
+                    User
+                  </Link>
+                ) : (
+                  <Link href="/login" className="text-white">
+                    Login
+                  </Link>
+                )}
+              </div>
             </div>
-            <nav>
+            <div className="flex-1 max-w-md mx-4 mt-6 md:mt-0">
+              <div className="flex items-center bg-gray-100 border border-gray-300 rounded-md mt-2">
+                <input
+                  type="search"
+                  placeholder="Search games..."
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className="flex-1 py-2 text-sm text-gray-700 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-md"
+                />
+                {searchInput.length > 0 && (
+                  <button
+                    className="bg-transparent text-gray-700 font-bold py-2 px-4 rounded-md"
+                    type="button"
+                    onClick={() => setSearchInput('')}
+                  >
+                    <img
+                      src="/images/icons8-monóculo-50.png"
+                      alt="Search"
+                      className="h-6 w-6 mx-2"
+                    />
+                  </button>
+                )}
+              </div>
+            </div>
+            <nav className="hidden md:flex md:items-center">
               {isLoggedIn ? (
                 <Link href="/user" className="text-white">
                   User
@@ -152,97 +169,97 @@ const Home = () => {
           </div>
         </header>
 
-          <section className="container mx-auto py-10">
-            <h2 className="text-2xl font-bold mb-8 text-center">Favoritos da Crítica</h2>
-            <div className="max-w-screen-lg mx-auto">
-              <Carousel
-                showThumbs={false}
-                showStatus={false}
-                infiniteLoop={false}
-                autoPlay={false}
-                transitionTime={600}
-                useKeyboardArrows={true}
-                renderArrowPrev={PrevArrow}
-                renderArrowNext={NextArrow}
-              >
-                {games.slice(0, 5).map((game, index) => (
-                  <div key={index} className="relative h-[50vh] md:h-[70vh] lg:h-[70vh] overflow-hidden group">
-                    <Image
-                      src={game.background_image}
-                      alt={game.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="w-full h-full"
-                    />
-                    <div className="absolute top-0 bg-gray-900 bg-opacity-75 w-full text-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <h3 className="text-xl font-bold">{game.name}</h3>
-                      {renderStars(game.rating)}
-                    </div>
+        <section className="container max-w-screen-lg mx-auto py-10">
+          <h2 className="text-2xl font-bold mb-8 text-center">Favoritos da Crítica</h2>
+          <div className="mb-10">
+            <Carousel
+              showArrows={true}
+              showStatus={false}
+              showThumbs={false}
+              infiniteLoop={true}
+              autoPlay={true}
+              interval={5000}
+              renderArrowPrev={PrevArrow}
+              renderArrowNext={NextArrow}
+            >
+              {games.slice(0, 10).map((game, index) => (
+                <div key={index} className="relative h-[600px] md:h-[600px] lg:h-[600px] overflow-hidden group">
+                  <Image
+                    src={game.background_image}
+                    alt={game.name}
+                    layout="fill"
+                    objectFit="cover"
+                    className="w-full h-full"
+                  />
+                  <div className="absolute top-0 bg-gray-900 bg-opacity-75 w-full text-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <h3 className="text-xl font-bold">{game.name}</h3>
+                    {renderStars(game.rating)}
                   </div>
-                ))}
-              </Carousel>
-            </div>
-
-            <section className="container max-w-screen-lg mx-auto py-10">
-              <h2 className="text-2xl font-bold mb-8 text-center">Em destaque essa semana</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {currentHighlightedGames.map((game, index) => (
-                  <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
-                    <Image
-                      src={game.background_image}
-                      alt={game.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="w-full h-full"
-                    />
-                    <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                      <h3 className="text-xl font-bold">{game.name}</h3>
-                      <p>Released: {formatDate(game.released)}</p>
-                      {renderStars(game.rating)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between mt-4">
-                <button onClick={handlePrevHighlighted} className="bg-gray-800 p-2 rounded">Prev</button>
-                <button onClick={handleNextHighlighted} className="bg-gray-800 p-2 rounded">Next</button>
-              </div>
-            </section>
-
-            <section className="container max-w-screen-lg mx-auto py-10">
-              <h2 className="text-2xl font-bold mb-8 text-center">Lançamentos</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                {currentReleasesGames.map((game, index) => (
-                  <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
-                    <Image
-                      src={game.background_image}
-                      alt={game.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="w-full h-full"
-                    />
-                    <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                      <h3 className="text-xl font-bold">{game.name}</h3>
-                      <p>Released: {formatDate(game.released)}</p>
-                      {renderStars(game.rating)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="flex justify-between mt-4">
-                <button onClick={handlePrevReleases} className="bg-gray-800 p-2 rounded">Prev</button>
-                <button onClick={handleNextReleases} className="bg-gray-800 p-2 rounded">Next</button>
-              </div>
-            </section>
-          </section>
-        </main>
-        <footer className="bg-gray-800 text-white py-4">
-          <div className="container mx-auto text-center">
-            <p>&copy; 2024 Save Point. Todos os direitos reservados.</p>
+                </div>
+              ))}
+            </Carousel>
           </div>
-        </footer>
-      </>
-    );
-  };
 
-  export default Home;
+          <section className="container max-w-screen-lg mx-auto py-10">
+            <h2 className="text-2xl font-bold mb-8 text-center">Em destaque essa semana</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {currentHighlightedGames.map((game, index) => (
+                <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
+                  <Image
+                    src={game.background_image}
+                    alt={game.name}
+                    layout="fill"
+                    objectFit="cover"
+                    className="w-full h-full"
+                  />
+                  <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                    <h3 className="text-xl font-bold">{game.name}</h3>
+                    <p>Released: {formatDate(game.released)}</p>
+                    {renderStars(game.rating)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between mt-4">
+              <button onClick={handlePrevHighlighted} className="bg-gray-800 p-2 rounded">Prev</button>
+              <button onClick={handleNextHighlighted} className="bg-gray-800 p-2 rounded">Next</button>
+            </div>
+          </section>
+
+          <section className="container max-w-screen-lg mx-auto py-10">
+            <h2 className="text-2xl font-bold mb-8 text-center">Lançamentos</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {currentReleasesGames.map((game, index) => (
+                <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
+                  <Image
+                    src={game.background_image}
+                    alt={game.name}
+                    layout="fill"
+                    objectFit="cover"
+                    className="w-full h-full"
+                  />
+                  <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                    <h3 className="text-xl font-bold">{game.name}</h3>
+                    <p>Released: {formatDate(game.released)}</p>
+                    {renderStars(game.rating)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between mt-4">
+              <button onClick={handlePrevReleases} className="bg-gray-800 p-2 rounded">Prev</button>
+              <button onClick={handleNextReleases} className="bg-gray-800 p-2 rounded">Next</button>
+            </div>
+          </section>
+        </section>
+      </main>
+      <footer className="bg-gray-800 text-white py-4">
+        <div className="container mx-auto text-center">
+          <p>&copy; 2024 Save Point. Todos os direitos reservados.</p>
+        </div>
+      </footer>
+    </>
+  );
+};
+
+export default Home;
