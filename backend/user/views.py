@@ -10,8 +10,6 @@ from .exception import UserException
 from .authenticate import authenticate, generate_token
 
 
-
-
 class AuthLogout(View):
     def get(self, request):
         response = redirect('User Login')
