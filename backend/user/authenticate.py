@@ -2,18 +2,22 @@ import jwt
 from .models import CustomUser
 from datetime import datetime, timedelta
 from django.conf import settings
-from django.contrib.auth.hashers import check_password
 from django.http import HttpResponse
+from django.contrib.auth.hashers import check_password
 
 def authenticate(username, password):
     try:
         user = CustomUser.objects.get(username=username)
+        password = CustomUser.objects.get(password=password)
+
         if check_password(password, user.password):
             return user
+        else:
+            return HttpResponse("Usuário e senhas inválidos")
+        
     except CustomUser.DoesNotExist:
-        return HttpResponse("Usuário não encontrado")
+        return None
     return None
-
 
 def generate_token(user):
     payload = {

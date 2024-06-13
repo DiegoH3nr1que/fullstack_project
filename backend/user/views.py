@@ -1,4 +1,3 @@
-from django.urls import reverse
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
@@ -8,6 +7,7 @@ from user.form import UserForm, UserLoginForm
 from .serializer import UserSerializer
 from .repositories import UserRepository
 from .exception import UserException
+from .authenticate import authenticate, generate_token
 
 
 
@@ -40,10 +40,11 @@ class UserLogin(View):
         password = request.POST.get('password')
 
         user = authenticate(username=username, password=password)
+        print(user)
         if user is not None:
-            # token = generate_token(user)
-            # response = render(request, "games/game_detail.html")
-            # response.set_cookie('jwt', token)
+            token = generate_token(user)
+            response = render(request, "games/game_detail.html")
+            response.set_cookie('jwt', token)
             return redirect("fetch_games")
         else:
              return HttpResponse("Usuário ou senha inválidos")
