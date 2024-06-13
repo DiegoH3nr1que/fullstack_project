@@ -1,20 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.views import View
+from django.contrib.auth import authenticate, login, logout
 
-from .authenticate import *
 from user.form import UserForm, UserLoginForm
 from .serializer import UserSerializer
 from .repositories import UserRepository
 from .exception import UserException
-from .authenticate import authenticate, generate_token
 
-
-class AuthLogout(View):
-    def get(self, request):
-        response = redirect('User Login')
-        response.delete_cookie('jwt')
-        return response
 
 class UserView(View):
     def get(self, request):
@@ -37,13 +30,10 @@ class UserLogin(View):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate(username=username, password=password)
+        user = authenticate(request, username=username, password=password)
         print(user)
         if user is not None:
-            token = generate_token(user)
-            response = render(request, "games/game_detail.html")
-            response.set_cookie('jwt', token)
-            return redirect("fetch_games")
+            return redirect(login, user, "fetch_games")
         else:
              return HttpResponse("Usuário ou senha inválidos")
 

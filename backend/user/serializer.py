@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
+from django.contrib.auth.hashers import make_password
 
 class UserSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
@@ -17,7 +18,7 @@ class UserSerializer(serializers.Serializer):
         password = validated_data.pop('password', None)
         instance = CustomUser(**validated_data)
         if password is not None:
-            instance.set_password(password)
+            instance.password = make_password(password)  # Use make_password para criar o hash da senha
         instance.save()
         return instance
 
@@ -26,6 +27,6 @@ class UserSerializer(serializers.Serializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         if password is not None:
-            instance.set_password(password)
+            instance.password = make_password(password)  # Use make_password para criar o hash da senha
         instance.save()
         return instance
