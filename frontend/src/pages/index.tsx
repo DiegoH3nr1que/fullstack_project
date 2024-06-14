@@ -17,56 +17,83 @@ interface Game {
 }
 
 const Home = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [games, setGames] = useState<Game[]>([]);
-  const [highlightedPage, setHighlightedPage] = useState(0);
-  const [releasesPage, setReleasesPage] = useState(0);
-  const [searchInput, setSearchInput] = useState('');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [games, setGames] = useState<Game[]>([]);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [popularGames, setPopularGames] = useState<Game[]>([]);
+    const [upcomingGames, setUpcomingGames] = useState<Game[]>([]);
+    const [genres, setGenres] = useState([]);
+    const [platforms, setPlatforms] = useState([]);
+    const [gamesByGenre, setGamesByGenre] = useState<Game[]>([]);
+    const [gamesByPlatform, setGamesByPlatform] = useState<Game[]>([]);
+    const [selectedGenre, setSelectedGenre] = useState(null);
+    const [selectedPlatform, setSelectedPlatform] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<Game[]>([]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
 
-  useEffect(() => {
-    axios.get('http://localhost:8000/games/')
-      .then(response => {
-        console.log(response.data);
-        if (Array.isArray(response.data)) {
-          setGames(response.data);
-        } else {
-          console.error('A resposta da API não é uma matriz:', response.data);
-        }
-      })
-      .catch(error => console.error('Error fetching games:', error));
+    useEffect(() => {
+      axios.get('http://localhost:8000/games/games') // Substitua pela sua URL
+          .then(response => setGames(response.data))
+          .catch(error => console.error('Error fetching games:', error));
+
+      axios.get('http://localhost:8000/games/popular_games/') // Substitua pela sua URL
+          .then(response => setPopularGames(response.data))
+          .catch(error => console.error('Error fetching popular games:', error));
+
+      axios.get('http://localhost:8000/games/upcoming_games/') // Substitua pela sua URL
+          .then(response => setUpcomingGames(response.data))
+          .catch(error => console.error('Error fetching upcoming games:', error));
+
+      axios.get('http://localhost:8000/games/genres/')
+          .then(response => setGenres(response.data))
+          .catch(error => console.error('Erro ao buscar gêneros:', error));
+
+      // Buscar plataformas
+      axios.get('http://localhost:8000/games/platforms/')
+          .then(response => setPlatforms(response.data))
+          .catch(error => console.error('Erro ao buscar plataformas:', error));
   }, []);
+     
 
-  const handleNextHighlighted = () => {
-    setHighlightedPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
-  };
-  
-  const handlePrevHighlighted = () => {
-    setHighlightedPage((prevPage) => (prevPage - 1 + Math.ceil(games.length / 5)) % Math.ceil(games.length / 5));
-  };
+        const handleNext = () => {
+          setCurrentPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
+        };
+        
+        const handlePrev = () => {
+          setCurrentPage((prevPage) => (prevPage - 1 + Math.ceil(games.length / 5)) % Math.ceil(games.length / 5));
+        };
+        
+        const currentGames = games.slice(currentPage * 5, (currentPage + 1) * 5);
 
-  const handleNextReleases = () => {
-    setReleasesPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
-  };
 
-  const handlePrevReleases = () => {
-    setReleasesPage((prevPage) => (prevPage - 1 + Math.ceil(games.length / 5)) % Math.ceil(games.length / 5));
-  };
-
-  const currentHighlightedGames = games.slice(highlightedPage * 5, (highlightedPage + 1) * 5);
-  const currentReleasesGames = games.slice(releasesPage * 5, (releasesPage + 1) * 5);
-
-  const PrevArrow = (onClickHandler: () => void, hasPrev: boolean, label: string) =>
-    hasPrev && (
-      <button
-        onClick={onClickHandler}
-        className="absolute top-1/2 left-4 z-10 bg-gray-800 hover:bg-opacity-75 text-white rounded-full p-2 focus:outline-none"
-        aria-label={label}
-      >
-        <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 18l-6-6 6-6" />
-        </svg>
-      </button>
-    );
+        const handleSearch = async () => {
+          try {
+            const response = await axios.get(`http://localhost:8000/search_api/?q=${searchQuery}`); // Use correct endpoint
+        
+            // Assuming your Django view returns data in the format:
+            // { results: [{ id: 1, name: 'Game Name', ... }, ...] }
+            setSearchResults(response.data.results || []); 
+          } catch (error) {
+            console.error('Error fetching game data:', error);
+        
+            if (error.response) {
+              // The request was made and the server responded with a status code
+              console.error('Server responded with:', error.response.data);
+              console.error('Status code:', error.response.status);
+            } else if (error.request) {
+              // The request was made but no response was received
+              console.error('No response received:', error.request);
+            } else {
+              // Something happened in setting up the request that triggered an Error
+              console.error('Error:', error.message);
+            }
+        
+            // Display a user-friendly error message (e.g., using a toast notification)
+            alert('An error occurred while searching. Please try again later.');
+          }
+        };
 
   const NextArrow = (onClickHandler: () => void, hasNext: boolean, label: string) =>
     hasNext && (
@@ -140,20 +167,26 @@ const Home = () => {
                   onChange={(e) => setSearchInput(e.target.value)}
                   className="flex-1 py-2 text-sm text-gray-700 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-md"
                 />
-                {searchInput.length > 0 && (
-                  <button
-                    className="bg-transparent text-gray-700 font-bold py-2 px-4 rounded-md"
-                    type="button"
-                    onClick={() => setSearchInput('')}
-                  >
-                    <img
-                      src="/images/icons8-monóculo-50.png"
-                      alt="Search"
-                      className="h-6 w-6 mx-2"
-                    />
-                  </button>
-                )}
+  
+                <button
+                  className="bg-transparent text-gray-700 font-bold py-2 px-4 rounded-md"
+                  type="button"
+                  onClick={handleSearch}  // Chama a função de busca ao clicar
+                >
+                  <img
+                    src="/images/icons8-monóculo-50.png"
+                    alt="Search"
+                    className="h-6 w-6 mx-2"
+                  />
+                </button>
               </div>
+              {searchResults.length > 0 && (
+                <ul>
+                  {searchResults.map(game => (
+                    <li key={game.id}>{game.name}</li>
+                  ))}
+                </ul>
+              )}
             </div>
             <nav className="hidden md:flex md:items-center">
               {isLoggedIn ? (
@@ -203,7 +236,7 @@ const Home = () => {
           <section className="container max-w-screen-lg mx-auto py-10">
             <h2 className="text-2xl font-bold mb-8 text-center">Em destaque essa semana</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {currentHighlightedGames.map((game, index) => (
+              {popularGames.map((game, index) => (
                 <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
                   <Image
                     src={game.background_image}
@@ -229,7 +262,7 @@ const Home = () => {
           <section className="container max-w-screen-lg mx-auto py-10">
             <h2 className="text-2xl font-bold mb-8 text-center">Lançamentos</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              {currentReleasesGames.map((game, index) => (
+              {upcomingGames.map((game, index) => (
                 <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
                   <Image
                     src={game.background_image}
