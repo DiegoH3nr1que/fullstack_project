@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
-from .authenticate import authenticate_user
+from .authenticate import authenticate_user, generateToken
 
 from user.form import UserForm, UserLoginForm
 from .serializer import UserSerializer
@@ -33,7 +33,11 @@ class UserLogin(View):
         user = authenticate_user(username=username, password=password)
         print(user)
         if user:
-            return JsonResponse({'message': 'Login realizado com sucesso!'}, status=200)
+            token = generateToken(user)
+            response = redirect('fetch_games')
+            response.set_cookie('jwt', token)
+            print(token)
+            return response
         else:
              return HttpResponse("Usuário ou senha inválidos")
 

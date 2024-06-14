@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from .repositories import UserRepository
 from .models import CustomUser
 
+
 def authenticate_user(username, password):
     try:
         user = CustomUser.objects.get(username=username, password=password)
