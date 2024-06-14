@@ -27,9 +27,22 @@ SECRET_KEY = "django-insecure-s4ka26gb2wzs)o+5eh*0*v6&650nzs_yq%^!77u87g)do(t_6p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
 # Application definition
 
 INSTALLED_APPS = [
@@ -44,6 +57,7 @@ INSTALLED_APPS = [
     "games",
     "user",
     "corsheaders",
+    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
@@ -57,8 +71,6 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
 ]
 
-
-CORS_ORIGIN_ALLOW_ALL = True 
 
 AUTH_USER_MODEL = 'user.CustomUser'
 

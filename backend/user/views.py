@@ -1,4 +1,4 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
 from .authenticate import authenticate_user
@@ -32,8 +32,8 @@ class UserLogin(View):
 
         user = authenticate_user(username=username, password=password)
         print(user)
-        if user is not None:
-            return redirect( "fetch_games")
+        if user:
+            return JsonResponse({'message': 'Login realizado com sucesso!'}, status=200)
         else:
              return HttpResponse("Usuário ou senha inválidos")
 

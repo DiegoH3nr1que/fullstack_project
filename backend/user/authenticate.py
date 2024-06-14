@@ -1,32 +1,16 @@
-from django.http import HttpResponse
 from .models import CustomUser
 import jwt
 from django.conf import settings
 from datetime import datetime, timedelta, timezone
 from .repositories import UserRepository
-
-from django.shortcuts import HttpResponse
-from .models import CustomUser
-
-from django.http import HttpResponse
 from .models import CustomUser
 
 def authenticate_user(username, password):
     try:
-        user = CustomUser.objects.get(username=username)
-        
-        # Comparando a senha diretamente (sem criptografia no banco de dados)
-        if user.password == password:
-            return user
-        else:
-            return HttpResponse("Senha incorreta", status=401)
-    
+        user = CustomUser.objects.get(username=username, password=password)
+        return user
     except CustomUser.DoesNotExist:
-        return HttpResponse("Usuário não encontrado", status=404)
-    
-    return None
-
-    
+        return None
 
 def generateToken(user):
     payload = {
