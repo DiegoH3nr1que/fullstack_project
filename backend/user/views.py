@@ -1,45 +1,50 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
-from .authenticate import authenticate_user, generateToken
-
-from user.form import UserForm, UserLoginForm
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from .form import UserForm, UserLoginForm
 from .serializer import UserSerializer
-from .repositories import UserRepository
-from .exception import UserException
+from rest_framework.authtoken.views import ObtainAuthToken
+from django.contrib.auth.decorators import login_required
 
 
-class UserView(View):
-    def get(self, request):
-        repository = UserRepository()
-        try:
-            users = repository.get_all_users()
-            serializer = UserSerializer(users, many=True)
-            objectReturn = {"users": serializer.data}
-        except UserException as e:
-            objectReturn = {"error": e.message}
-        
-        return render(request, "user/home_user.html", objectReturn)
-
-class UserLogin(View):
+class UserLogin(ObtainAuthToken):
     def get(self, request):
         userLoginForm = UserLoginForm()
         return render(request, "user/login_user.html", {"form": userLoginForm})
-
+    
     def post(self, request):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        user = authenticate_user(username=username, password=password)
-        print(user)
+        user = authenticate(request, username=username, password=password)
         if user:
-            token = generateToken(user)
-            response = redirect('fetch_games')
-            response.set_cookie('jwt', token)
-            print(token)
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            response = JsonResponse({"token": token.key})
+            response.set_cookie('jwt', token.key)
             return response
         else:
-             return HttpResponse("Usuário ou senha inválidos")
+            return HttpResponse("Usuário ou senha inválidos", status=401)
+
+class UserLogout(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+            response = redirect('User Login')
+            response.delete_cookie('jwt')
+            return response
+        return HttpResponse("Você não está autenticado")
+
+
+class UserView(View):
+
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return render(request, "user/home_user.html", {"users": serializer.data})
 
 
 class UserCreate(View):
@@ -50,41 +55,38 @@ class UserCreate(View):
     def post(self, request):
         userForm = UserForm(request.POST)
         if userForm.is_valid():
-            serializer = UserSerializer(data=userForm.cleaned_data)
-            if serializer.is_valid():
-                repository = UserRepository()
-                repository.create_user(serializer.validated_data)
-            else:
-                print(serializer.errors)
-        else:
-            print(userForm.errors)
+            user = userForm.save(commit=False)  # Cria uma instância do usuário sem salvar no banco ainda
+            user.set_password(userForm.cleaned_data['password'])  # Define a senha usando set_password
+            user.save()  # Salva o usuário no banco de dados
 
-        return redirect('User Login')
+            # Redireciona para a página de login após o registro bem-sucedido
+            return redirect('User Login')
+        else:
+            # Se o formulário não for válido, renderiza o formulário novamente com os erros
+            return render(request, "user/form_user.html", {"form": userForm})
 
 class UserDelete(View):
     def get(self, request, id):
-        repository = UserRepository()
-        repository.delete_user(id)
+        user = User.objects.get(pk=id)
+        user.delete()
         return redirect('User View')
+
 
 class UserEdit(View):
     def get(self, request, id):
-        repository = UserRepository()
-        user = repository.get_user_by_id(id)
-        userForm = UserForm(initial=user.__dict__)
+        user = User.objects.get(pk=id)
+        userForm = UserForm(instance=user)
         return render(request, "user/form_edit_user.html", {"form": userForm, "id": id})
 
     def post(self, request, id):
-        userForm = UserForm(request.POST)
-        if userForm.is_valid():
-            serializer = UserSerializer(data=userForm.data)
-            if serializer.is_valid():
-                repository = UserRepository()
-                repository.update_user(id, serializer.data)
+        if request.user.is_authenticated:
+            user = User.objects.get(pk=id)
+            userForm = UserForm(request.POST, instance=user)
+            if userForm.is_valid():
+                user = userForm.save(commit=False)
+                user.set_password(userForm.cleaned_data['password'])
+                userForm.save()
+                return redirect('User View')
             else:
-                print(serializer.errors)
-        else:
-            print(userForm.errors)
-
-        return redirect('User View')
-    
+                return render(request, "user/form_edit_user.html", {"form": userForm, "id": id})
+        return HttpResponse("Você não está autenticado")
