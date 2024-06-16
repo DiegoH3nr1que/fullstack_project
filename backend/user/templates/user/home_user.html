@@ -9,7 +9,7 @@
         <div
           class="card-header bg-primary text-white d-flex justify-content-between"
         >
-          <h5 class="mb-0">Nome: {{ user.name }}</h5>
+          <h5 class="mb-0">Nome: {{ user.first_name }}</h5>
           <div>
             {% if not errorAuth %}
             <a
@@ -28,9 +28,9 @@
         </div>
         <div class="card-body">
           <p class="card-text">
-            Email: {{ user.email }} <br />
+            ID: {{ user.id }} <br />
             Username : {{ user.username }} <br />
-            bio: {{user.bio}} <br/>
+            email: {{user.email}} <br/>
           </p>
         </div>
       </div>
