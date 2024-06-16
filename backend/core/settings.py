@@ -7,15 +7,14 @@ SECRET_KEY = "django-insecure-s4ka26gb2wzs)o+5eh*0*v6&650nzs_yq%^!77u87g)do(t_6p
 
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'localhost',
-    '127.0.0.1',
-]
 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = ['*']
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    'http://localhost:3000',
+    # adicione aqui outras origens permitidas, se necessário
 ]
+CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 
 
 INSTALLED_APPS = [
@@ -106,9 +105,5 @@ STATICFILES_DIRS = [
 ]
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-
-CORS_ALLOW_CREDENTIALS = True
-
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
