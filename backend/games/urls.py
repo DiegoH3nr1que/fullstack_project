@@ -1,9 +1,12 @@
 from django.urls import path
-from .views import fetch_games, search_api, game_detail, create_review
+from . import views
 
 urlpatterns = [
-    path('', fetch_games, name='fetch_games'),  # Sem parâmetros na URL
-    path('api/search/', search_api, name='search_api'),
-    path('<slug:game_slug>/', game_detail, name='game_detail'),
-    path('create_review/<slug:game_slug>/', create_review, name='create_review'),
+    path('games/', views.fetch_games, name='fetch_games'),
+    path('search/', views.search_api, name='search_api'),
+    path('games/<slug:game_slug>/', views.game_detail, name='game_detail'),
+    path('games/<slug:game_slug>/reviews/', views.create_review, name='create_review'),
+    path('upcoming_games/', views.upcoming_games, name='upcoming_games'),
+    path('popular_games/', views.popular_games, name='popular_games'),
+    path('destaques/', views.featured_games, name='featured_games'),
 ]

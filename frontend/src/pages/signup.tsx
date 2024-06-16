@@ -1,31 +1,55 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import axios from 'axios';
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [birthDate, setBirthDate] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
     setError('');
-    // Continue with form submission (e.g., send data to the server)
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
-    console.log('Birth Date:', birthDate);
-    console.log('Username:', username);
-    console.log('Email:', email);
-    console.log('Password:', password);
+    setSuccess('');
+
+    const userData = {
+      first_name: firstName,
+      last_name: lastName,
+      username: username,
+      email: email,
+      password: password,
+    };
+
+    try {
+      const response = await axios.post('http://127.0.0.1:8000/user/create/', userData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status === 200) {
+        setSuccess('User created successfully!');
+        // Clear the form
+        setFirstName('');
+        setLastName('');
+        setUsername('');
+        setEmail('');
+        setPassword('');
+        setConfirmPassword('');
+      }
+    } catch (error) {
+      setError('Error creating user');
+      console.error('Error creating user:', error);
+    }
   };
 
   return (
@@ -63,16 +87,6 @@ const SignUp = () => {
                 placeholder="Enter your last name"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-3 py-2 mb-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-white mb-2" htmlFor="birth-date">Date of Birth</label>
-              <input
-                type="date"
-                id="birth-date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
                 className="w-full px-3 py-2 mb-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
               />
             </div>
@@ -120,6 +134,7 @@ const SignUp = () => {
                 className="w-full px-3 py-2 mb-2 text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-200"
               />
               {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
+              {success && <p className="text-green-500 text-xs mt-2">{success}</p>}
             </div>
             <button
               type="submit"

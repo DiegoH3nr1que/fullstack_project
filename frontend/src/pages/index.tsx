@@ -10,6 +10,8 @@ import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 interface Game {
+  id: number;
+  slug: string;
   name: string;
   background_image: string;
   released: string;
@@ -19,41 +21,80 @@ interface Game {
 const Home = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [games, setGames] = useState<Game[]>([]);
+  const [popularGames, setPopularGames] = useState<Game[]>([]);
+  const [upcomingGames, setUpcomingGames] = useState<Game[]>([]);
   const [highlightedPage, setHighlightedPage] = useState(0);
   const [releasesPage, setReleasesPage] = useState(0);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState("");
+  const [startIndex, setStartIndex] = useState(0);
+  const [startIndexs, setStartIndexs] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/games/')
-      .then(response => {
-        console.log(response.data);
-        if (Array.isArray(response.data)) {
-          setGames(response.data);
-        } else {
-          console.error('A resposta da API não é uma matriz:', response.data);
-        }
-      })
+    axios.get('http://localhost:8000/games/games')
+      .then(response => setGames(response.data))
       .catch(error => console.error('Error fetching games:', error));
+
+    axios.get('http://localhost:8000/games/popular_games/')
+      .then(response => setPopularGames(response.data))
+      .catch(error => console.error('Error fetching popular games:', error));
+
+    axios.get('http://localhost:8000/games/upcoming_games/')
+      .then(response => setUpcomingGames(response.data))
+      .catch(error => console.error('Error fetching upcoming games:', error));
   }, []);
 
   const handleNextHighlighted = () => {
     setHighlightedPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
   };
-  
+
   const handlePrevHighlighted = () => {
     setHighlightedPage((prevPage) => (prevPage - 1 + Math.ceil(games.length / 5)) % Math.ceil(games.length / 5));
   };
 
   const handleNextReleases = () => {
-    setReleasesPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
+    if (startIndex + 5 < upcomingGames.length) {
+      setTransitioning(true);
+      setTimeout(() => {
+        setStartIndex(startIndex + 5);
+        setTransitioning(false);
+      }, 300);
+    }
   };
 
   const handlePrevReleases = () => {
-    setReleasesPage((prevPage) => (prevPage - 1 + Math.ceil(games.length / 5)) % Math.ceil(games.length / 5));
+    if (startIndex > 0) {
+      setTransitioning(true);
+      setTimeout(() => {
+        setStartIndex(startIndex - 5);
+        setTransitioning(false);
+      }, 300);
+    }
+  };
+
+  const handleNextRelease = () => {
+    if (startIndexs + 5 < popularGames.length) {
+      setTransitioning(true);
+      setTimeout(() => {
+        setStartIndexs(startIndexs + 5);
+        setTransitioning(false);
+      }, 300);
+    }
+  };
+
+  const handlePrevRelease = () => {
+    if (startIndexs > 0) {
+      setTransitioning(true);
+      setTimeout(() => {
+        setStartIndexs(startIndexs - 5);
+        setTransitioning(false);
+      }, 300);
+    }
   };
 
   const currentHighlightedGames = games.slice(highlightedPage * 5, (highlightedPage + 1) * 5);
-  const currentReleasesGames = games.slice(releasesPage * 5, (releasesPage + 1) * 5);
+  const currentReleasesGames = upcomingGames.slice(startIndex, startIndex + 5);
+  const currentPopularGames = popularGames.slice(startIndexs, startIndexs + 5);
 
   const PrevArrow = (onClickHandler: () => void, hasPrev: boolean, label: string) =>
     hasPrev && (
@@ -89,11 +130,11 @@ const Home = () => {
     return (
       <div className="flex justify-center">
         {[...Array(fullStars)].map((_, index) => (
-          <FaStar key={`full-${index}`}/>
+          <FaStar key={`full-${index}`} />
         ))}
-        {halfStar && <FaStarHalfAlt/>}
+        {halfStar && <FaStarHalfAlt />}
         {[...Array(emptyStars)].map((_, index) => (
-          <FaRegStar key={`empty-${index}`}/>
+          <FaRegStar key={`empty-${index}`} />
         ))}
       </div>
     );
@@ -194,6 +235,9 @@ const Home = () => {
                   <div className="absolute top-0 bg-gray-900 bg-opacity-75 w-full text-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <h3 className="text-xl font-bold">{game.name}</h3>
                     {renderStars(game.rating)}
+                    <Link href={`/games/${game.slug}`} className="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
+                      Detalhes
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -202,53 +246,85 @@ const Home = () => {
 
           <section className="container max-w-screen-lg mx-auto py-10">
             <h2 className="text-2xl font-bold mb-8 text-center">Em destaque essa semana</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {currentHighlightedGames.map((game, index) => (
-                <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
+                <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
                   <Image
                     src={game.background_image}
                     alt={game.name}
                     layout="fill"
                     objectFit="cover"
-                    className="w-full h-full"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                    <h3 className="text-xl font-bold">{game.name}</h3>
-                    <p>Released: {formatDate(game.released)}</p>
-                    {renderStars(game.rating)}
+                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                    <h3 className="text-lg font-bold">{game.name}</h3>
+                    <p className="text-sm">Released: {formatDate(game.released)}</p>
+                    <div className="flex items-center mt-2">
+                      {renderStars(game.rating)}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="flex justify-between mt-4">
-              <button onClick={handlePrevHighlighted} className="bg-gray-800 p-2 rounded">Prev</button>
-              <button onClick={handleNextHighlighted} className="bg-gray-800 p-2 rounded">Next</button>
+            <div className="flex justify-between mt-8">
+              <button onClick={handlePrevHighlighted} className="bg-gray-800 text-white p-2 rounded hover:bg-gray-700 transition-colors duration-300">Prev</button>
+              <button onClick={handleNextHighlighted} className="bg-gray-800 text-white p-2 rounded hover:bg-gray-700 transition-colors duration-300">Next</button>
             </div>
           </section>
 
           <section className="container max-w-screen-lg mx-auto py-10">
             <h2 className="text-2xl font-bold mb-8 text-center">Lançamentos</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {currentReleasesGames.map((game, index) => (
-                <div key={index} className="relative h-80 md:h-96 overflow-hidden group">
+                <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
                   <Image
                     src={game.background_image}
                     alt={game.name}
                     layout="fill"
                     objectFit="cover"
-                    className="w-full h-full"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 flex flex-col justify-center items-center bg-gray-900 bg-opacity-75 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                    <h3 className="text-xl font-bold">{game.name}</h3>
-                    <p>Released: {formatDate(game.released)}</p>
-                    {renderStars(game.rating)}
+                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                    <h3 className="text-lg font-bold">{game.name}</h3>
+                    <p className="text-sm">Released: {formatDate(game.released)}</p>
+                    <div className="flex items-center mt-2">
+                      {renderStars(game.rating)}
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="flex justify-between mt-4">
+            <div className="flex justify-between mt-8">
               <button onClick={handlePrevReleases} className="bg-gray-800 p-2 rounded">Prev</button>
               <button onClick={handleNextReleases} className="bg-gray-800 p-2 rounded">Next</button>
+            </div>
+          </section>
+
+          <section className="container max-w-screen-lg mx-auto py-10">
+            <h2 className="text-2xl font-bold mb-8 text-center">Mais Populares</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+              {currentPopularGames.map((game, index) => (
+                <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
+                  <Image
+                    src={game.background_image}
+                    alt={game.name}
+                    layout="fill"
+                    objectFit="cover"
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                    <h3 className="text-lg font-bold">{game.name}</h3>
+                    <p className="text-sm">Released: {formatDate(game.released)}</p>
+                    <div className="flex items-center mt-2">
+                      {renderStars(game.rating)}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-between mt-8">
+              <button onClick={handlePrevRelease} className="bg-gray-800 p-2 rounded">Prev</button>
+              <button onClick={handleNextRelease} className="bg-gray-800 p-2 rounded">Next</button>
             </div>
           </section>
         </section>
