@@ -1,43 +1,12 @@
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
-from django.utils.text import slugify
 
-class Game(models.Model):
-    name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True, blank=True)
-    background_image = models.URLField(null=True, blank=True)
-
-    # Informações básicas
-    released = models.DateField(null=True, blank=True)
-    rating = models.FloatField(null=True, blank=True)
-    ratings_count = models.IntegerField(null=True, blank=True)
-    description = models.TextField(null=True, blank=True)
-    website = models.URLField(null=True, blank=True)
-
-    # Plataformas e Gêneros (como listas de strings)
-    platforms = models.JSONField(null=True, blank=True)
-    genres = models.JSONField(null=True, blank=True)
-
-    # Outras informações
-    developers = models.JSONField(null=True, blank=True)
-    publishers = models.JSONField(null=True, blank=True)
-    esrb_rating = models.CharField(max_length=50, null=True, blank=True)
-    playtime = models.IntegerField(null=True, blank=True)
-    suggestions_count = models.IntegerField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        super().save(*args, **kwargs)
+class Jogo(models.Model):
+    nome = models.CharField(max_length=255, unique=True)  # Unique para evitar duplicatas
+    sumario = models.TextField(blank=True, null=True)
+    capa = models.CharField(max_length=255, blank=True, null=True)  # ID da imagem da capa
+    generos = models.CharField(max_length=255, blank=True, null=True)
+    plataformas = models.CharField(max_length=255, blank=True, null=True)
+    aggregated_rating = models.FloatField(null=True, blank=True)  # Campo para o rating
 
     def __str__(self):
-        return self.name
-
-
-class Review(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='reviews')
-    rating = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
-    text = models.TextField(blank=True)
-
-    def __str__(self):
-        return f"Review for {self.game.name} ({self.rating} stars)"
+        return self.nome

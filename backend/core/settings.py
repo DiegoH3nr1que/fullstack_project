@@ -140,3 +140,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+IGDB_CLIENT_ID = 'tiu5hxhsub9d9gezmhwx3gqt7p21uc'  # Substitua pelas suas credenciais
+IGDB_ACCESS_TOKEN = 'dp1lcg8bxg6gky2z6b0n4hlgyk183a' 
