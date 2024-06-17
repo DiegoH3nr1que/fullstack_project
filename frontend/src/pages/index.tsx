@@ -64,14 +64,7 @@ const Home = () => {
     }
   };
 
-  const handleNextHighlighted = () => {
-    setHighlightedPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
-  };
-
-  const handlePrevHighlighted = () => {
-    setHighlightedPage((prevPage) => (prevPage - 1 + Math.ceil(games.length / 5)) % Math.ceil(games.length / 5));
-  };
-
+  
   const handleNextReleases = () => {
     if (startIndex + 5 < upcomingGames.length) {
       setTransitioning(true);
@@ -182,7 +175,7 @@ const Home = () => {
               />
               <div className="md:hidden ml-4">
                 {isLoggedIn ? (
-                  <UserMenu /> // Usando o novo componente
+                  <UserMenu />
                 ) : (
                   <Link href="/login" className="text-white">
                     Login
@@ -228,7 +221,7 @@ const Home = () => {
             </div>
             <nav className="hidden md:flex md:items-center">
               {isLoggedIn ? (
-                <UserMenu /> // Usando o novo componente
+                <UserMenu />
               ) : (
                 <Link href="/login" className="text-white">
                   Login
@@ -237,71 +230,45 @@ const Home = () => {
             </nav>
           </div>
         </header>
-
         <section className="container max-w-screen-lg mx-auto py-10">
           <h2 className="text-2xl font-bold mb-8 text-center">Favoritos da Crítica</h2>
           <div className="mb-10">
             <Carousel
               showArrows={true}
               showStatus={false}
-              showThumbs={false}
+              showIndicators={false}
               infiniteLoop={true}
-              autoPlay={true}
-              interval={5000}
-              renderArrowPrev={PrevArrow}
-              renderArrowNext={NextArrow}
+              renderArrowPrev={(onClickHandler, hasPrev, label) =>
+                PrevArrow(onClickHandler, hasPrev, label)
+              }
+              renderArrowNext={(onClickHandler, hasNext, label) =>
+                NextArrow(onClickHandler, hasNext, label)
+              }
             >
-              {games.slice(0, 10).map((game, index) => (
-                <div key={index} className="relative h-[600px] md:h-[600px] lg:h-[600px] overflow-hidden group">
+              {currentHighlightedGames.map((game) => (
+                <div key={game.id} className="relative">
                   <Image
                     src={game.background_image}
                     alt={game.name}
-                    layout="fill"
-                    objectFit="cover"
-                    className="w-full h-full"
+                    layout="responsive"
+                    width={800}
+                    height={450}
+                    className="rounded-lg"
                   />
-                  <div className="absolute top-0 bg-gray-900 bg-opacity-75 w-full text-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4 rounded-b-lg">
                     <h3 className="text-xl font-bold">{game.name}</h3>
-                    {renderStars(game.rating)}
-                    <Link href={`https://api.rawg.io/api/games/${game.slug}?key=e4c06793c5804f288d80ad5c6bf9684f`} className="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
-                      Detalhes
-                    </Link> 
+                    <p className="text-sm">{formatDate(game.released)}</p>
+                    <div className="flex justify-between items-center mt-2">
+                      <div className="text-yellow-400">{renderStars(game.rating)}</div>
+                      <Link href={`/games/${game.slug}`} className="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
+                        Detalhes
+                      </Link>
+                    </div>
                   </div>
                 </div>
-                
               ))}
             </Carousel>
           </div>
-
-          <section className="container max-w-screen-lg mx-auto py-10">
-            <h2 className="text-2xl font-bold mb-8 text-center">Em destaque essa semana</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-            {currentHighlightedGames.map((game, index) => (
-              <Link key={index} href={`/games/${game.slug}`} passHref>
-                  <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
-                    <Image
-                      src={game.background_image}
-                      alt={game.name}
-                      layout="fill"
-                      objectFit="cover"
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                      <h3 className="text-lg font-bold">{game.name}</h3>
-                      <p className="text-sm">Released: {formatDate(game.released)}</p>
-                      <div className="flex items-center mt-2">
-                        {renderStars(game.rating)}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            <div className="flex justify-between mt-8">
-              <button onClick={handlePrevHighlighted} className="bg-gray-800 text-white p-2 rounded hover:bg-gray-700 transition-colors duration-300">Prev</button>
-              <button onClick={handleNextHighlighted} className="bg-gray-800 text-white p-2 rounded hover:bg-gray-700 transition-colors duration-300">Next</button>
-            </div>
-          </section>
 
           <section className="container max-w-screen-lg mx-auto py-10">
             <h2 className="text-2xl font-bold mb-8 text-center">Lançamentos</h2>
