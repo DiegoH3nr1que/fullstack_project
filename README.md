@@ -68,4 +68,4 @@
 ## Como Executar o Projeto:
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/seu-usuario/game-database-api.git
+   git clone 
