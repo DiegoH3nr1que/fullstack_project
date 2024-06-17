@@ -9,7 +9,7 @@ import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 import { useRouter } from "next/router";
-import UserMenu from './userMenu'; 
+import UserMenu from '../components/userMenu'; 
 
 interface Game {
   id: number;
@@ -221,7 +221,7 @@ const Home = () => {
             </div>
             <nav className="hidden md:flex md:items-center">
               {isLoggedIn ? (
-                <UserMenu />
+                <UserMenu /> // Usando o novo componente
               ) : (
                 <Link href="/login" className="text-white">
                   Login
@@ -274,22 +274,22 @@ const Home = () => {
             <h2 className="text-2xl font-bold mb-8 text-center">Lançamentos</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {currentReleasesGames.map((game, index) => (
-                <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
-                  <Image
-                    src={game.background_image}
-                    alt={game.name}
-                    layout="fill"
-                    objectFit="cover"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                    <h3 className="text-lg font-bold">{game.name}</h3>
-                    <p className="text-sm">Released: {formatDate(game.released)}</p>
-                    <div className="flex items-center mt-2">
-                      {renderStars(game.rating)}
-                    </div>
+                <Link key={index} href={`/games/${game.slug}`} passHref className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
+                <Image
+                  src={game.background_image}
+                  alt={game.name}
+                  layout="fill"
+                  objectFit="cover"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                  <h3 className="text-lg font-bold">{game.name}</h3>
+                  <p className="text-sm">Released: {formatDate(game.released)}</p>
+                  <div className="flex items-center mt-2">
+                    {renderStars(game.rating)}
                   </div>
                 </div>
+            </Link>
               ))}
             </div>
             <div className="flex justify-between mt-8">
@@ -302,7 +302,7 @@ const Home = () => {
             <h2 className="text-2xl font-bold mb-8 text-center">Mais Populares</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {currentPopularGames.map((game, index) => (
-                <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
+                <Link key={index} href={`/games/${game.slug}`} passHref className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
                   <Image
                     src={game.background_image}
                     alt={game.name}
@@ -317,9 +317,9 @@ const Home = () => {
                       {renderStars(game.rating)}
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+              </Link>
+            ))}
+          </div>
             <div className="flex justify-between mt-8">
               <button onClick={handlePrevRelease} className="bg-gray-800 p-2 rounded">Prev</button>
               <button onClick={handleNextRelease} className="bg-gray-800 p-2 rounded">Next</button>
