@@ -7,6 +7,7 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Estado para a mensagem de erro
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -18,17 +19,15 @@ const LoginPage: React.FC = () => {
         password,
       });
 
-      // Aqui você pode tratar a resposta do login, como armazenar o token no localStorage
-      console.log("Resposta do login:", response.data);
-
-      // Exemplo de armazenamento do token no localStorage
+      // Armazenar o token no localStorage
       localStorage.setItem("authToken", response.data.token);
 
       // Redirecionamento após o login ser bem-sucedido
       router.push('/');
     } catch (error) {
       console.error("Erro ao fazer login:", error);
-      // Tratar erros de login aqui
+      // Definir a mensagem de erro no estado
+      setErrorMessage("Erro ao fazer login: usuário ou senha inválidos");
     }
   };
 
@@ -110,6 +109,9 @@ const LoginPage: React.FC = () => {
             Login
           </button>
         </form>
+        {errorMessage && ( // Exibir a mensagem de erro, se houver
+          <p className="text-red-500 text-center mt-4">{errorMessage}</p>
+        )}
         <p className="text-xs text-white text-center mt-4">
           Don't have an account?{" "}
           <Link href="/signup" passHref>
