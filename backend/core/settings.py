@@ -12,8 +12,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_HEADERS = ['*']
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    # adicione aqui outras origens permitidas, se necessário
 ]
+
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 
 
@@ -95,6 +95,8 @@ LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 
 USE_I18N = True
+
+RAWG_API_KEY = 'e4c06793c5804f288d80ad5c6bf9684f'
 
 USE_TZ = True
 
