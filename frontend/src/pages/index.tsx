@@ -8,11 +8,8 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-<<<<<<< HEAD
 import { useRouter } from "next/router";
-=======
 import UserMenu from './userMenu'; 
->>>>>>> develop
 
 interface Game {
   id: number;
