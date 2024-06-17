@@ -8,7 +8,7 @@ from .serializers import ReviewSerializer
 from django.utils.text import slugify
 
 def fetch_games(request):
-    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Substitua pela sua chave de API RAWG
+    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  
     url = f'https://api.rawg.io/api/games?key={api_key}'
 
     try:
@@ -16,7 +16,7 @@ def fetch_games(request):
         response.raise_for_status() 
         data = response.json()
 
-        # Extrair todas as informações necessárias
+        
         games_info = []
         for game in data['results']:
             if 'background_image' in game:
@@ -28,7 +28,7 @@ def fetch_games(request):
                     'slug': game['slug']  # Obtendo o slug da API Rawg
                 })
 
-        return JsonResponse(games_info, safe=False)  # Retorna a lista de informações dos jogos
+        return JsonResponse(games_info, safe=False) 
 
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição à API: {e}")
@@ -56,14 +56,14 @@ def game_detail(request, game_slug):
 
 def search_api(request):
     query = request.GET.get('q', '')
-    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Substitua pela sua chave de API RAWG
+    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  
     url = f'https://api.rawg.io/api/games?key={api_key}&search={query}'
     try:
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
 
-        return JsonResponse(data)  # Retorna os dados brutos da API
+        return JsonResponse(data)  
 
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição à API: {e}")
@@ -72,7 +72,7 @@ def search_api(request):
 class GameViewSet(viewsets.ReadOnlyModelViewSet):
     # ... outras actions
 
-    @action(detail=True, methods=['post'], url_path='reviews/(?P<game_slug>[^/.]+)')  # Correção do url_path
+    @action(detail=True, methods=['post'], url_path='reviews/(?P<game_slug>[^/.]+)') 
     def reviews(self, request, game_slug=None): 
         try:
             game = Game.objects.get(slug=game_slug)
@@ -98,17 +98,17 @@ def create_review(request, game_slug):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def featured_games(request):
-    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Sua chave de API RAWG
+    api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  
     base_url = "https://api.rawg.io/api/games"
     params = {
         "key": api_key,
-        "dates": "2023-01-01,2024-01-01",  # Período dos jogos em destaque
-        "ordering": "-added",  # Ordenar por data de adição (mais recentes primeiro)
+        "dates": "2023-01-01,2024-01-01",  
+        "ordering": "-added",  
     }
 
     try:
         response = requests.get(base_url, params=params)
-        response.raise_for_status()  # Verificar se a requisição foi bem-sucedida
+        response.raise_for_status()  
         data = response.json()
 
         featured_games_info = []
@@ -139,7 +139,11 @@ def popular_games(request):
         response.raise_for_status()
         data = response.json()
 
+<<<<<<< HEAD
         games_info = []
+=======
+        games_info = []  
+>>>>>>> 0fb2a1917bc383450e1d2900d08b38ce14402998
         for game in data['results']:
             if 'background_image' in game:
                 games_info.append({
