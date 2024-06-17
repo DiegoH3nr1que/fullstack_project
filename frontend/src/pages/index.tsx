@@ -8,6 +8,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import { useRouter } from "next/router";
 
 interface Game {
   id: number;
@@ -26,9 +27,11 @@ const Home = () => {
   const [highlightedPage, setHighlightedPage] = useState(0);
   const [releasesPage, setReleasesPage] = useState(0);
   const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [startIndex, setStartIndex] = useState(0);
   const [startIndexs, setStartIndexs] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     axios.get('http://localhost:8000/games/games')
@@ -43,6 +46,17 @@ const Home = () => {
       .then(response => setUpcomingGames(response.data))
       .catch(error => console.error('Error fetching upcoming games:', error));
   }, []);
+
+  const handleSearch = () => {
+    if (searchInput.trim() === "") return;
+    router.push(`/search?q=${searchInput}`);
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const handleNextHighlighted = () => {
     setHighlightedPage((prevPage) => (prevPage + 1) % Math.ceil(games.length / 5));
@@ -179,20 +193,32 @@ const Home = () => {
                   placeholder="Search games..."
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   className="flex-1 py-2 text-sm text-gray-700 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 rounded-md"
                 />
-                {searchInput.length > 0 && (
-                  <button
-                    className="bg-transparent text-gray-700 font-bold py-2 px-4 rounded-md"
-                    type="button"
-                    onClick={() => setSearchInput('')}
-                  >
-                    <img
-                      src="/images/icons8-monóculo-50.png"
-                      alt="Search"
-                      className="h-6 w-6 mx-2"
-                    />
-                  </button>
+
+                <button
+                  className="bg-transparent text-gray-700 font-bold py-2 px-4 rounded-md"
+                  type="button"
+                  onClick={handleSearch}
+                >
+                  <img
+                    src="/images/icons8-monóculo-50.png"
+                    alt="Search"
+                    className="h-6 w-6 mx-2"
+                  />
+                </button>
+              </div>
+
+              <div className="mt-4">
+                {searchResults.length > 0 && (
+                  <ul>
+                    {searchResults.map((game) => (
+                      <li key={game.id} className="border-b py-2">
+                        {game.name}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
             </div>
@@ -235,11 +261,12 @@ const Home = () => {
                   <div className="absolute top-0 bg-gray-900 bg-opacity-75 w-full text-center p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <h3 className="text-xl font-bold">{game.name}</h3>
                     {renderStars(game.rating)}
-                    <Link href={`/games/${game.slug}`} className="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
+                    <Link href={`https://api.rawg.io/api/games/${game.slug}?key=e4c06793c5804f288d80ad5c6bf9684f`} className="mt-4 inline-block bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">
                       Detalhes
-                    </Link>
+                    </Link> 
                   </div>
                 </div>
+                
               ))}
             </Carousel>
           </div>
@@ -247,23 +274,25 @@ const Home = () => {
           <section className="container max-w-screen-lg mx-auto py-10">
             <h2 className="text-2xl font-bold mb-8 text-center">Em destaque essa semana</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              {currentHighlightedGames.map((game, index) => (
-                <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
-                  <Image
-                    src={game.background_image}
-                    alt={game.name}
-                    layout="fill"
-                    objectFit="cover"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
-                    <h3 className="text-lg font-bold">{game.name}</h3>
-                    <p className="text-sm">Released: {formatDate(game.released)}</p>
-                    <div className="flex items-center mt-2">
-                      {renderStars(game.rating)}
+            {currentHighlightedGames.map((game, index) => (
+              <Link key={index} href={`/games/${game.slug}`} passHref>
+                  <div key={index} className="relative h-80 md:h-96 overflow-hidden rounded-lg shadow-lg group">
+                    <Image
+                      src={game.background_image}
+                      alt={game.name}
+                      layout="fill"
+                      objectFit="cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 text-white">
+                      <h3 className="text-lg font-bold">{game.name}</h3>
+                      <p className="text-sm">Released: {formatDate(game.released)}</p>
+                      <div className="flex items-center mt-2">
+                        {renderStars(game.rating)}
+                      </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
             <div className="flex justify-between mt-8">
