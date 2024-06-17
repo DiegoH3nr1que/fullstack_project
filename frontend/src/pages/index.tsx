@@ -8,6 +8,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { FaStar, FaStarHalfAlt, FaRegStar } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+import UserMenu from './userMenu'; 
 
 interface Game {
   id: number;
@@ -31,6 +32,11 @@ const Home = () => {
   const [transitioning, setTransitioning] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      setIsLoggedIn(true);
+    }
+
     axios.get('http://localhost:8000/games/games')
       .then(response => setGames(response.data))
       .catch(error => console.error('Error fetching games:', error));
@@ -162,9 +168,7 @@ const Home = () => {
               />
               <div className="md:hidden ml-4">
                 {isLoggedIn ? (
-                  <Link href="/user" className="text-white">
-                    User
-                  </Link>
+                  <UserMenu /> // Usando o novo componente
                 ) : (
                   <Link href="/login" className="text-white">
                     Login
@@ -198,9 +202,7 @@ const Home = () => {
             </div>
             <nav className="hidden md:flex md:items-center">
               {isLoggedIn ? (
-                <Link href="/user" className="text-white">
-                  User
-                </Link>
+                <UserMenu /> // Usando o novo componente
               ) : (
                 <Link href="/login" className="text-white">
                   Login

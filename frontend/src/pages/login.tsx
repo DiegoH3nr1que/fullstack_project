@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,9 +24,8 @@ const LoginPage: React.FC = () => {
       // Exemplo de armazenamento do token no localStorage
       localStorage.setItem("authToken", response.data.token);
 
-      // Redirecionamento ou qualquer outra lógica após o login ser bem-sucedido
-      // Por exemplo, redirecionar para a página inicial
-      // router.push('/');
+      // Redirecionamento após o login ser bem-sucedido
+      router.push('/');
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       // Tratar erros de login aqui
