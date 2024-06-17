@@ -1,9 +1,9 @@
 # Escopo do projeto - Fullstack
 
-Tópicos a serem abordados na documentação do escopo de um projeto fullstack de TI usando arquitetura MVC/MTV com repository:
+Tópicos a serem abordados na documentação do escopo de um projeto fullstack de TI usando arquitetura MTV:
 
 1. **Introdução**
-    - O presente projeto visa desenvolver uma plataforma fullstack de review de games, onde usuários podem compartilhar e consultar opiniões sobre diversos jogos eletrônicos. A plataforma será projetada para oferecer uma experiência intuitiva e interativa, permitindo que os jogadores se conectem, troquem informações e descubram novos jogos com base em avaliações e recomendações da comunidade.
+    - O presente projeto visa desenvolver uma plataforma fullstack sobre busca e análise de games, onde usuários podem compartilhar e consultar opiniões sobre diversos jogos eletrônicos. A plataforma será projetada para oferecer uma experiência intuitiva e interativa, permitindo que os jogadores se conectem, troquem informações e descubram novos jogos com base em avaliações e recomendações da comunidade.
 2. **Objetivo Geral**
      - Desenvolver uma aplicação web completa (frontend e backend) que permita aos usuários criar contas, fazer login, postar reviews de jogos, avaliar reviews de outros usuários e consultar uma base de dados abrangente de jogos e reviews.
 4. **Arquitetura do Sistema**
@@ -38,10 +38,9 @@ Tópicos a serem abordados na documentação do escopo de um projeto fullstack d
         •	React Next – TypeScript
         •	Django REST – Python
     - Bancos de dados:
-        •	PostgreSQL
+        •	SQLite
     - Ferramentas de desenvolvimento:
         •	Git - Versionamento de Código
         •	GitHub - Plataforma de desenvolvimento colaborativo
-        •	Docker - plataforma de código aberto para facilitar criação/implementação/execução de projetos em contêiner.
       
-- O escopo do projeto propõe o desenvolvimento de uma plataforma fullstack para análises de jogos. Utilizando a arquitetura MVC/MTV com padrão Repository, o projeto busca garantir organização e escalabilidade. Requisitos funcionais incluem autenticação de usuários, gestão de perfis, postagem e consulta de análises, interatividade e feedback. Requisitos não funcionais destacam versatilidade, design tecnológico, segurança e usabilidade. Tecnologias como React Next, Django REST e PostgreSQL são selecionadas. O projeto visa oferecer uma plataforma dinâmica e envolvente para a comunidade de jogadores.
+- O escopo do projeto propõe o desenvolvimento de uma plataforma fullstack para análises de jogos. Utilizando a arquitetura MTV, o projeto busca garantir organização e escalabilidade. Requisitos funcionais incluem autenticação de usuários, gestão de perfis, postagem e consulta de análises, interatividade e feedback. Requisitos não funcionais destacam versatilidade, design tecnológico, segurança e usabilidade. Tecnologias como React Next, Django REST e PostgreSQL são selecionadas. O projeto visa oferecer uma plataforma dinâmica e envolvente para a comunidade de jogadores.

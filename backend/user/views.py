@@ -42,7 +42,7 @@ class UserLogout(View):
         return HttpResponse("Você não está autenticado")
 
 
-class UserView(LoginRequiredMixin, UserPassesTestMixin, APIView):
+class UserView(View):
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -91,7 +91,7 @@ class UserCreate(APIView):
             return render(request, "user/form_user.html", {"form": userForm})
 
 
-class UserDelete(LoginRequiredMixin, UserPassesTestMixin, APIView):
+class UserDelete(APIView):
 
     def test_func(self):
         return self.request.user.is_superuser
@@ -105,7 +105,7 @@ class UserDelete(LoginRequiredMixin, UserPassesTestMixin, APIView):
         return redirect('User View')
 
 
-class UserEdit(LoginRequiredMixin, UserPassesTestMixin, APIView):
+class UserEdit(APIView):
     def get(self, request, id):
         user = User.objects.get(pk=id)
         userForm = UserForm(instance=user)

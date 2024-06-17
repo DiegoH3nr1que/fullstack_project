@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";  
+import axios from "axios";
 
 interface User {
   id: number;
@@ -9,10 +9,11 @@ interface User {
 
 const AdminPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUsers = async () => {
-      try { 
+      try {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
@@ -32,12 +33,13 @@ const AdminPage: React.FC = () => {
         setUsers(response.data); // Define a lista de usuários no estado
       } catch (error) {
         console.error("Erro ao obter a lista de usuários:", error.message);
-        // Trate os erros aqui, por exemplo, redirecione para a página de login
+        setError(error.message); // Define a mensagem de erro no estado
       }
     };
 
     fetchUsers();
   }, []);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#196273]">
       <div className="bg-custom-gradient p-8 rounded-lg shadow-lg max-w-3xl w-full">
@@ -52,24 +54,28 @@ const AdminPage: React.FC = () => {
           </h1>
         </div>
         <h2 className="text-white text-center font-medium mb-4 text-xl">Lista de Usuários</h2>
-        <table className="w-full text-white text-sm">
-          <thead>
-            <tr>
-              <th className="border px-4 py-2">ID</th>
-              <th className="border px-4 py-2">Username</th>
-              <th className="border px-4 py-2">Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map(user => (
-              <tr key={user.id}>
-                <td className="border px-4 py-2">{user.id}</td>
-                <td className="border px-4 py-2">{user.username}</td>
-                <td className="border px-4 py-2">{user.email}</td>
+        {error ? (
+          <div className="text-red-500 text-center">{error}</div>
+        ) : (
+          <table className="w-full text-white text-sm">
+            <thead>
+              <tr>
+                <th className="border px-4 py-2">ID</th>
+                <th className="border px-4 py-2">Username</th>
+                <th className="border px-4 py-2">Email</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map(user => (
+                <tr key={user.id}>
+                  <td className="border px-4 py-2">{user.id}</td>
+                  <td className="border px-4 py-2">{user.username}</td>
+                  <td className="border px-4 py-2">{user.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

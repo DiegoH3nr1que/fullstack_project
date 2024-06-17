@@ -8,7 +8,7 @@ const UserMenu: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:8000/user/logout/');
+      await axios.get('http://localhost:8000/user/logout/');
       localStorage.removeItem('authToken');
       router.push('/login');
     } catch (error) {
