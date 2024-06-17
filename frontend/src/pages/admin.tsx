@@ -20,29 +20,47 @@ const AdminPage: React.FC = () => {
           throw new Error("Token de autenticação não encontrado");
         }
 
-        
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         const response = await axios.get("http://127.0.0.1:8000/user/admin/");
-        
-        
+
         if (!Array.isArray(response.data)) {
           throw new Error("Resposta inválida da API: não é uma lista de usuários");
         }
 
-        setUsers(response.data); 
+        setUsers(response.data);
       } catch (error) {
         console.error("Erro ao obter a lista de usuários:", error.message);
-        setError(error.message); 
+        setError(error.message);
       }
     };
 
     fetchUsers();
   }, []);
 
+  const handleDelete = async (userId: number) => {
+    try {
+      const token = localStorage.getItem("authToken");
+
+      if (!token) {
+        throw new Error("Token de autenticação não encontrado");
+      }
+
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      await axios.get(`http://127.0.0.1:8000/user/delete/${userId}`);
+
+      // Remove o usuário da lista de usuários
+      setUsers(users.filter(user => user.id !== userId));
+    } catch (error) {
+      console.error("Erro ao deletar usuário:", error.message);
+      setError(error.message);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#196273]">
-      <div className="bg-custom-gradient p-8 rounded-lg shadow-lg max-w-3xl w-full">
+      <div className="bg-custom-gradient p-8 rounded-lg shadow-lg max-w-5xl w-full">
         <div className="flex items-center justify-center mt-5 mb-4">
           <img
             src="/images/Gemini_Generated_Image_sm9kpasm9kpasm9k-removebg-preview.png"
@@ -63,6 +81,7 @@ const AdminPage: React.FC = () => {
                 <th className="border px-4 py-2">ID</th>
                 <th className="border px-4 py-2">Username</th>
                 <th className="border px-4 py-2">Email</th>
+                <th className="border px-4 py-2">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -71,6 +90,14 @@ const AdminPage: React.FC = () => {
                   <td className="border px-4 py-2">{user.id}</td>
                   <td className="border px-4 py-2">{user.username}</td>
                   <td className="border px-4 py-2">{user.email}</td>
+                  <td className="border px-4 py-2">
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded"
+                    >
+                      Deletar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
