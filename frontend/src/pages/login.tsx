@@ -19,15 +19,26 @@ const LoginPage: React.FC = () => {
         password,
       });
 
+<<<<<<< HEAD
       // Armazenar o token no localStorage
+=======
+      
+      console.log("Resposta do login:", response.data);
+
+      
+>>>>>>> c488a64bd4dc2030e7007bc4801577ee6c21c309
       localStorage.setItem("authToken", response.data.token);
 
-      // Redirecionamento após o login ser bem-sucedido
+      
       router.push('/');
     } catch (error) {
       console.error("Erro ao fazer login:", error);
+<<<<<<< HEAD
       // Definir a mensagem de erro no estado
       setErrorMessage("Erro ao fazer login: usuário ou senha inválidos");
+=======
+      
+>>>>>>> c488a64bd4dc2030e7007bc4801577ee6c21c309
     }
   };
 

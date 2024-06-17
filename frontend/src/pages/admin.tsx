@@ -20,20 +20,20 @@ const AdminPage: React.FC = () => {
           throw new Error("Token de autenticação não encontrado");
         }
 
-        // Configura o Axios para enviar o token JWT no cabeçalho Authorization
+        
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
         const response = await axios.get("http://127.0.0.1:8000/user/admin/");
         
-        // Verifica se a resposta da API é uma array de usuários
+        
         if (!Array.isArray(response.data)) {
           throw new Error("Resposta inválida da API: não é uma lista de usuários");
         }
 
-        setUsers(response.data); // Define a lista de usuários no estado
+        setUsers(response.data); 
       } catch (error) {
         console.error("Erro ao obter a lista de usuários:", error.message);
-        setError(error.message); // Define a mensagem de erro no estado
+        setError(error.message); 
       }
     };
 

@@ -1,4 +1,4 @@
-// components/SearchBar.tsx
+
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -12,7 +12,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
 
   const handleSearch = () => {
     if (searchInput.trim() !== '') {
-      onSearch(searchInput); // Chama a função de busca do componente pai
+      onSearch(searchInput); 
     }
   };
 
