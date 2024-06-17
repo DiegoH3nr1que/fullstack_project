@@ -1,4 +1,4 @@
-// pages/search.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
@@ -10,13 +10,13 @@ const SearchResults: React.FC = () => {
   const { q } = router.query;
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
-  const [currentQuery, setCurrentQuery] = useState(q || ''); // Estado para a query atual
+  const [currentQuery, setCurrentQuery] = useState(q || ''); 
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
         const response = await axios.get('http://127.0.0.1:8000/games/search/', {
-          params: { q: currentQuery }, // Usa currentQuery na busca
+          params: { q: currentQuery }, 
         });
         setResults(response.data.results);
       } catch (err) {
@@ -28,7 +28,7 @@ const SearchResults: React.FC = () => {
     if (currentQuery) {
       fetchResults();
     }
-  }, [currentQuery]); // Atualiza quando currentQuery mudar
+  }, [currentQuery]); 
 
   const handleSearch = (newQuery: string) => {
     setCurrentQuery(newQuery);

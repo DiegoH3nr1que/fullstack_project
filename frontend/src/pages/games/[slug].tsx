@@ -5,12 +5,12 @@ import axios from 'axios';
 const GameDetails: React.FC = () => {
   const router = useRouter();
   const { slug } = router.query;
-  const [game, setGame] = useState<any>(null); // Tipando o estado game
+  const [game, setGame] = useState<any>(null); 
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewText, setReviewText] = useState('');
   const [rating, setRating] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const apiKey = 'e4c06793c5804f288d80ad5c6bf9684f'; // Substitua pela sua chave de API
+  const apiKey = 'e4c06793c5804f288d80ad5c6bf9684f'; 
 
   useEffect(() => {
     const fetchGameDetails = async () => {
@@ -21,7 +21,7 @@ const GameDetails: React.FC = () => {
           });
           setGame(gameResponse.data);
 
-          const reviewsResponse = await axios.get(`/api/games/${slug}/reviews/`); // Certifique-se que a URL está correta
+          const reviewsResponse = await axios.get(`/api/games/${slug}/reviews/`); 
           setReviews(reviewsResponse.data);
         } catch (err: any) {
           console.error('Erro ao buscar detalhes do jogo:', err);
