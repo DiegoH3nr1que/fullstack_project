@@ -1,135 +1,130 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.views import View
-
-
-from .authenticate import *
-from user.form import UserForm, UserLoginForm
-from .authenticate import *
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from .form import UserForm, UserLoginForm
 from .serializer import UserSerializer
-from .repositories import UserRepository
-from .exception import UserException
+from rest_framework.authtoken.views import ObtainAuthToken
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.http import HttpResponseForbidden
+from rest_framework.views import APIView
 
-class AuthLogin(View):  
-  def post(self, request):
-      user = authenticate(username ='user', password='a1b2c3')
-      if user:
-        token = generate_token(user)
-        response = redirect('User Login')
-        response.set_cookie('jwt', token)
-        
-        return response
+class UserLogin(ObtainAuthToken):
+    def get(self, request):
+        userLoginForm = UserLoginForm()
+        return render(request, "user/login_user.html", {"form": userLoginForm})
 
-      return redirect('User Login')
+    def post(self, request):
+        # Utilize json para pegar os dados do post
+        data = request.data
+        username = data.get('username')
+        password = data.get('password')
 
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            response = JsonResponse({"token": token.key})
+            response.set_cookie('jwt', token.key)
+            return response
+        else:
+            return HttpResponse("Usuário ou senha inválidos", status=401)
 
-  def get(self, request):
-      user = authenticate(username ='user', password='a1b2c3')
-      if user:
-        token = generate_token(user)
-        response = redirect('User Loginw')
-        response.set_cookie('jwt', token)
-        
-        return response
-
-      return redirect('User Login')
-  
-class AuthLogout(View):
-    def get(sekf, request):
-        response = redirect('User Login')
-        response.delete_cookie('jwt')
-        return response
+class UserLogout(View):
+    def get(self, request):
+        if request.user.is_authenticated:
+            logout(request)
+            response = redirect('User Login')
+            response.delete_cookie('jwt')
+            return response
+        return HttpResponse("Você não está autenticado")
 
 
 class UserView(View):
-    def get(self, request):
-        repository = UserRepository(collectionName='users')
-        try:
-            users = list(repository.getAll())
-            serializer = UserSerializer(data=users, many=True)
-            if (serializer.is_valid()):
-                ModelUser = serializer.save()
-                objectReturn = {"weathers":ModelUser}
-            else:
-                objectReturn = {"error":serializer.errors}
-        except UserException as e:
-            objectReturn = {"error":e.message}
-        
-        return render(request, "home_user.html", objectReturn)
+
+    def test_func(self):
+        return self.request.user.is_superuser
     
-class UserLogin(View):
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Você não tem permissão para acessar esta página.")     
 
     def get(self, request):
-        userLoginForm = UserLoginForm()
-        return render(request, "login_user.html", {"form": userLoginForm})
-    
-    def post(self, request):
-        userLoginForm = UserLoginForm(request.POST)
-        if userLoginForm.is_valid():
-            username = userLoginForm.cleaned_data['username']
-            password = userLoginForm.cleaned_data['password']
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return JsonResponse(serializer.data, safe=False)
 
-            repository = UserRepository()
-            user = repository.get_user_by_username(username)
 
-            if user and user.password == password:  # Supondo que a senha esteja em texto simples, mas normalmente você deve usar hashing
-                return "Login funcionou"
-            else:
-                return redirect('User Login')
 
-        return render(request, "login_user.html", {"form": userLoginForm, "error": "Invalid username or password"})
-    
-class UserCreate(View):
+class UserCreate(APIView):
     def get(self, request):
         userForm = UserForm()
+        return render(request, "user/form_user.html", {"form": userForm})
 
-        return render(request, "form_user.html", {"form": userForm})
-    
     def post(self, request):
-        userForm = UserForm(request.POST)
-        if userForm.is_valid():
-            serializer = UserSerializer(data=userForm.data)
-            if serializer.is_valid():
-                repository = UserRepository()
-                repository.create_user(serializer.data)
-            else:
-                print(serializer.errors)
-        else:
-            print(userForm.errors)
 
-        return redirect('User Login')
+        data = request.data
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+        first_name = data.get('first_name')
+        last_name = data.get('last_name')
+
+
+        # Crie um dicionário com os dados para inicializar o formulário
+        data = {'username': username,'email': email, 'password': password,'first_name': first_name, 'last_name': last_name }
+
+        # Crie uma instância do formulário com os dados recebidos
+        userForm = UserForm(data)
+
+        if userForm.is_valid():
+            # Salve o usuário no banco de dados
+            user = userForm.save(commit=False)  # Cria uma instância do usuário sem salvar no banco ainda
+            user.set_password(password)  # Define a senha usando set_password
+            user.save()  # Salva o usuário no banco de dados
+
+            # Redirecione para a página de login após o registro bem-sucedido
+            return redirect('User Login')
+        else:
+            # Se o formulário não for válido, renderize o formulário novamente com os erros
+            return render(request, "user/form_user.html", {"form": userForm})
+
+
+class UserDelete(APIView):
+
+    def test_func(self):
+        return self.request.user.is_superuser
     
-    
-class UserDelete(View):
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Você não tem permissão para acessar esta página.")
 
     def get(self, request, id):
-        # Obter o repositório de clima
-        repository = UserRepository(collectionName='users')
-        # Excluir o registro de clima com o ID fornecido
-        repository.deleteById(id)
-        # Redirecionar de volta para a página principal
+        user = User.objects.get(pk=id)
+        user.delete()
         return redirect('User View')
-    
-    
-class UserEdit(View):
 
+
+class UserEdit(APIView):
     def get(self, request, id):
-        repository = UserRepository(collectionName='users')
-        user = repository.getByID(id)
-        userForm = UserForm(initial=user)
-        return render(request, "form_user.html", {"form":userForm, "id": id})
+        user = User.objects.get(pk=id)
+        userForm = UserForm(instance=user)
+        return render(request, "user/form_edit_user.html", {"form": userForm, "id": id})
     
-    def post(self, request, id):
-        userForm = UserForm(request.POST)
-        if userForm.is_valid():
-            serializer = UserSerializer(data=userForm.data)
-            serializer.id = id
-            if (serializer.is_valid()):
-                repository = UserRepository(collectionName='users')
-                repository.update(serializer.data, id)
-            else:
-                print(serializer.errors)
-        else:
-            print(userForm.errors)
+    
+    def test_func(self):
+        return self.request.user.is_superuser
+    
+    def handle_no_permission(self):
+        return HttpResponseForbidden("Você não tem permissão para acessar esta página.")
 
-        return redirect('User Login')
+    def post(self, request, id):
+            user = User.objects.get(pk=id)
+            userForm = UserForm(request.POST, instance=user)
+            if userForm.is_valid():
+                user = userForm.save(commit=False)
+                user.set_password(userForm.cleaned_data['password'])
+                userForm.save()
+                return redirect('User View')
+            else:
+                return render(request, "user/form_edit_user.html", {"form": userForm, "id": id})
