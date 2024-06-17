@@ -1,5 +1,10 @@
 import requests
 from django.http import JsonResponse
+from rest_framework import viewsets, status
+from rest_framework.decorators import action, api_view
+from rest_framework.response import Response
+from .models import Review, Game
+from .serializers import ReviewSerializer
 
 def fetch_games(request):
     api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Substitua pela sua chave de API RAWG
@@ -43,6 +48,7 @@ def search_api(request):
         return JsonResponse({'error': 'Erro ao buscar jogos da API'}, status=500)
 
 def game_detail(request, game_slug):
+    print(f"Buscando detalhes do jogo: {game_slug}")
     api_key = 'e4c06793c5804f288d80ad5c6bf9684f'
     url = f'https://api.rawg.io/api/games/{game_slug}?key={api_key}'
     try:
@@ -54,8 +60,33 @@ def game_detail(request, game_slug):
         print(f"Erro na requisição à API: {e}")
         return JsonResponse({'error': 'Erro ao buscar detalhes do jogo da API'}, status=500)
 
+class GameViewSet(viewsets.ReadOnlyModelViewSet):
+    # ... outras actions
+
+    @action(detail=True, methods=['post'], url_path='reviews/(?P<game_slug>[^/.]+)')  # Correção do url_path
+    def reviews(self, request, game_slug=None): 
+        try:
+            game = Game.objects.get(slug=game_slug)
+        except Game.DoesNotExist:
+            return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(game=game)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+    
+@api_view(['POST'])
 def create_review(request, game_slug):
-    pass
+    try:
+        game = Game.objects.get(slug=game_slug)
+    except Game.DoesNotExist:
+        return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ReviewSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save(game=game)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def featured_games(request):
     api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Sua chave de API RAWG
@@ -114,7 +145,7 @@ def popular_games(request):
 
 def upcoming_games(request):
     api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  
-    dates = request.GET.get('dates', '2024-01-01,2024-12-31') 
+    dates = request.GET.get('dates', '2024-07-01,2024-12-31') 
     ordering = request.GET.get('ordering', '-added')
     url = f'https://api.rawg.io/api/games?key={api_key}&dates={dates}&ordering={ordering}' 
 

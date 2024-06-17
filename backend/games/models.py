@@ -4,7 +4,7 @@ from django.utils.text import slugify
 
 class Game(models.Model):
     name = models.CharField(max_length=255)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, db_index=True) 
     background_image = models.URLField(null=True, blank=True)
 
     # Informações básicas
