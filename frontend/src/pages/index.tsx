@@ -10,7 +10,6 @@
   import { enUS } from 'date-fns/locale';
   import { useRouter } from "next/router";
   import UserMenu from '../components/userMenu'; 
-  import ReactTooltip from 'react-tooltip';
 
   interface Game {
     id: number;

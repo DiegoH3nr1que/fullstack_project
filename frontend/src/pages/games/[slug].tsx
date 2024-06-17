@@ -40,7 +40,7 @@ const GameDetails: React.FC = () => {
           });
           setGame(gameResponse.data);
 
-          const reviewsResponse = await axios.get(`/api/games/${slug}/reviews/`);
+          const reviewsResponse = await axios.get(`http://localhost:8000/games/details/${slug}/`);
           setReviews(reviewsResponse.data);
         } catch (err: any) {
           console.error('Erro ao buscar detalhes do jogo:', err);
@@ -59,7 +59,7 @@ const GameDetails: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`/api/games/${slug}/reviews/`, {
+      const response = await axios.post(`http://localhost:8000/games/details${slug}/reviews/`, {
         rating,
         text: reviewText,
       });
@@ -215,7 +215,6 @@ const GameDetails: React.FC = () => {
             </div>
           </>
         )}
-        {error && <p className="text-red-500 text-lg mt-4">{error}</p>}
         <div className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Reviews:</h2>
           {reviews.length > 0 ? (

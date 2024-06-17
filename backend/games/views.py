@@ -68,21 +68,6 @@ def search_api(request):
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição à API: {e}")
         return JsonResponse({'error': 'Erro ao buscar jogos da API'}, status=500)
-
-class GameViewSet(viewsets.ReadOnlyModelViewSet):
-    # ... outras actions
-
-    @action(detail=True, methods=['post'], url_path='reviews/(?P<game_slug>[^/.]+)')  # Correção do url_path
-    def reviews(self, request, game_slug=None): 
-        try:
-            game = Game.objects.get(slug=game_slug)
-        except Game.DoesNotExist:
-            return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
-        serializer = ReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(game=game)
-            return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)
     
 @api_view(['POST'])
 def create_review(request, game_slug):
