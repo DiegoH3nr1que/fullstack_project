@@ -228,7 +228,7 @@ const Home = () => {
             </div>
             <nav className="hidden md:flex md:items-center">
               {isLoggedIn ? (
-                <UserMenu /> // Usando o novo componente
+                <UserMenu /> 
               ) : (
                 <Link href="/login" className="text-white">
                   Login

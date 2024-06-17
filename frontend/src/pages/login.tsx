@@ -18,17 +18,17 @@ const LoginPage: React.FC = () => {
         password,
       });
 
-      // Aqui você pode tratar a resposta do login, como armazenar o token no localStorage
+      
       console.log("Resposta do login:", response.data);
 
-      // Exemplo de armazenamento do token no localStorage
+      
       localStorage.setItem("authToken", response.data.token);
 
-      // Redirecionamento após o login ser bem-sucedido
+      
       router.push('/');
     } catch (error) {
       console.error("Erro ao fazer login:", error);
-      // Tratar erros de login aqui
+      
     }
   };
 
