@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 const SignUp = () => {
   const [firstName, setFirstName] = useState('');
@@ -12,6 +13,8 @@ const SignUp = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  const router = useRouter(); // Inicializa o roteador
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +48,10 @@ const SignUp = () => {
         setEmail('');
         setPassword('');
         setConfirmPassword('');
+        // Redirect to login page
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000); // Redireciona após 2 segundos para que o usuário veja a mensagem de sucesso
       }
     } catch (error) {
       setError('Error creating user');

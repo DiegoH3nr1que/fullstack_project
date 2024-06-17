@@ -48,12 +48,12 @@ class UserView(LoginRequiredMixin, UserPassesTestMixin, APIView):
         return self.request.user.is_superuser
     
     def handle_no_permission(self):
-        return HttpResponseForbidden("Você não tem permissão para acessar esta página.")
+        return HttpResponseForbidden("Você não tem permissão para acessar esta página.")     
 
     def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
-        return render(request, "user/home_user.html", {"users": serializer.data})
+        return JsonResponse(serializer.data, safe=False)
 
 
 

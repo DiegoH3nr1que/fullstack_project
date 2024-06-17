@@ -1,19 +1,43 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios from "axios";  
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
 
 const AdminPage: React.FC = () => {
-  const [users, setUsers] = useState<any[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/user/admin/")
-      .then(response => {
-        setUsers(response.data);
-      })
-      .catch(error => {
-        console.error("Erro ao obter a lista de usuários:", error);
-      });
-  }, []);
+    const fetchUsers = async () => {
+      try { 
+        const token = localStorage.getItem("authToken");
 
+        if (!token) {
+          throw new Error("Token de autenticação não encontrado");
+        }
+
+        // Configura o Axios para enviar o token JWT no cabeçalho Authorization
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        const response = await axios.get("http://127.0.0.1:8000/user/admin/");
+        
+        // Verifica se a resposta da API é uma array de usuários
+        if (!Array.isArray(response.data)) {
+          throw new Error("Resposta inválida da API: não é uma lista de usuários");
+        }
+
+        setUsers(response.data); // Define a lista de usuários no estado
+      } catch (error) {
+        console.error("Erro ao obter a lista de usuários:", error.message);
+        // Trate os erros aqui, por exemplo, redirecione para a página de login
+      }
+    };
+
+    fetchUsers();
+  }, []);
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#196273]">
       <div className="bg-custom-gradient p-8 rounded-lg shadow-lg max-w-3xl w-full">
