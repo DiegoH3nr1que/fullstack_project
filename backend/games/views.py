@@ -71,6 +71,7 @@ def search_api(request):
     
 @api_view(['POST'])
 def create_review(request, game_slug):
+    print('chegou aqui')
     try:
         game = Game.objects.get(slug=game_slug)
     except Game.DoesNotExist:

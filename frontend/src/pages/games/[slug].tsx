@@ -59,7 +59,7 @@ const GameDetails: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`http://localhost:8000/games/details${slug}/reviews/`, {
+      const response = await axios.post(`http://localhost:8000/games/details/${slug}/reviews/`, {
         rating,
         text: reviewText,
       });
