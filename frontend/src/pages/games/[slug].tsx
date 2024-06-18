@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
-import UserMenu from '@/components/userMenu'; 
+import UserMenu from '@/components/userMenu';
 
 const Star: React.FC<{ filled: boolean; onClick: () => void }> = ({ filled, onClick }) => (
   <svg
@@ -40,11 +40,11 @@ const GameDetails: React.FC = () => {
           });
           setGame(gameResponse.data);
 
-          const reviewsResponse = await axios.get(`http://localhost:8000/games/details/${slug}/`);
+          const reviewsResponse = await axios.get(`http://localhost:8000/games/games/details/${slug}/reviews/`); // Corrigido o endpoint
           setReviews(reviewsResponse.data);
         } catch (err: any) {
-          console.error('Erro ao buscar detalhes do jogo:', err);
-          setError(err.message || 'Jogo não encontrado.');
+          console.error('Erro ao buscar detalhes ou reviews:', err); // Mensagem de erro mais abrangente
+          setError('Ocorreu um erro ao carregar os dados do jogo ou as reviews.'); // Mensagem de erro amigável para o usuário
         }
       }
     };
@@ -59,13 +59,14 @@ const GameDetails: React.FC = () => {
       return;
     }
     try {
-      const response = await axios.post(`http://localhost:8000/games/details${slug}/reviews/`, {
+      const response = await axios.post(`http://localhost:8000/games/games/details/${slug}/reviews/`, { // Corrigido o endpoint
         rating,
         text: reviewText,
       });
       setReviews([...reviews, response.data]);
       setReviewText('');
       setRating(null); // Reinicia a seleção de rating
+      setError(null); // Limpa a mensagem de erro após o envio bem-sucedido
     } catch (err: any) {
       console.error('Erro ao enviar review:', err);
       setError(err.message || 'Erro ao enviar review.');
@@ -216,28 +217,28 @@ const GameDetails: React.FC = () => {
           </>
         )}
         <div className="mt-8">
-          <h2 className="text-2xl font-bold mb-4">Reviews:</h2>
-          {reviews.length > 0 ? (
-            <ul>
-              {reviews.map((review) => (
-                <li key={review.id} className="mb-4">
-                  <div className="bg-gray-800 p-4 rounded-lg shadow-md">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-bold">{review.user}</span>
-                      <span className="text-sm text-gray-400">{formatDate(review.date)}</span>
-                    </div>
-                    <div className="flex items-center mb-2">
-                      {renderStars(review.rating)}
-                    </div>
-                    <p className="text-gray-200">{review.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="text-gray-400">Nenhuma review disponível para este jogo.</p>
-          )}
-        </div>
+      <h2 className="text-2xl font-bold mb-4">Reviews:</h2>
+      {reviews.length > 0 ? (
+        <ul>
+          {reviews.map((review) => (
+            <li key={review.id} className="mb-4">
+              <div className="bg-gray-800 p-4 rounded-lg shadow-md">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-bold">{review.user}</span>
+                  <span className="text-sm text-gray-400">{formatDate(review.date)}</span>
+                </div>
+                <div className="flex items-center mb-2">
+                  {renderStars(review.rating)}
+                </div>
+                <p className="text-gray-200">{review.text}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-400">Nenhuma review disponível para este jogo.</p>
+      )}
+    </div>
         {isLoggedIn && (
           <div className="mt-8">
             <h2 className="text-2xl font-bold mb-4">Deixe sua review:</h2>

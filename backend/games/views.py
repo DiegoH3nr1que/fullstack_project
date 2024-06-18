@@ -6,6 +6,12 @@ from rest_framework.response import Response
 from .models import Review, Game
 from .serializers import ReviewSerializer
 from django.utils.text import slugify
+from rest_framework.permissions import AllowAny
+from rest_framework import generics
+from .models import Game, Review
+from .utils import fetch_and_save_game_details
+from rest_framework import serializers
+
 
 def fetch_games(request):
     api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Substitua pela sua chave de API RAWG
@@ -48,11 +54,21 @@ def game_detail(request, game_slug):
         if 'detail' in game and game['detail'] == 'Not found.':
             return JsonResponse({'error': 'Jogo não encontrado'}, status=404)
 
+        # Adiciona as reviews do banco de dados ao JSON de resposta
+        game_instance = Game.objects.filter(slug=game_slug).first()
+        if game_instance:
+            reviews = Review.objects.filter(game=game_instance)
+            reviews_serializer = ReviewSerializer(reviews, many=True)
+            game['reviews'] = reviews_serializer.data
+        else:
+            game['reviews'] = []
+
         return JsonResponse(game)
 
     except requests.exceptions.RequestException as e:
         print(f"Erro na requisição à API: {e}")
         return JsonResponse({'error': 'Erro ao buscar detalhes do jogo da API'}, status=500)
+
 
 def search_api(request):
     query = request.GET.get('q', '')
@@ -69,18 +85,29 @@ def search_api(request):
         print(f"Erro na requisição à API: {e}")
         return JsonResponse({'error': 'Erro ao buscar jogos da API'}, status=500)
     
-@api_view(['POST'])
-def create_review(request, game_slug):
-    try:
-        game = Game.objects.get(slug=game_slug)
-    except Game.DoesNotExist:
-        return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
+class ReviewCreateView(generics.ListCreateAPIView):  
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]
 
-    serializer = ReviewSerializer(data=request.data)
-    if serializer.is_valid():
+    def get_queryset(self):
+        game_slug = self.kwargs.get('slug')
+        return Review.objects.filter(game__slug=game_slug)  
+
+    def perform_create(self, serializer):
+        game_slug = self.kwargs.get('slug')
+        try:
+            game = Game.objects.get(slug=game_slug)
+        except Game.DoesNotExist:
+            game = fetch_and_save_game_details(game_slug)
         serializer.save(game=game)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            return super().create(request, *args, **kwargs)
+        except serializers.ValidationError as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST) 
+        
 
 def featured_games(request):
     api_key = 'e4c06793c5804f288d80ad5c6bf9684f'  # Sua chave de API RAWG
